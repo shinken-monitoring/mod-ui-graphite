@@ -1,0 +1,26 @@
+{
+  "name": "ui-graphite",
+  "types": ["module"],
+  "version": "1.4",
+  "homepage": "http://github.com/shinken-monitoring/mod-ui-graphite",
+  "author": "Jean Gabès",
+  "description": "Enable Graphite graphs inside the WebUI",
+  "contributors": [
+    {
+      "name": "Jean Gabès",
+      "email": "naparuba@gmail.com"
+    }
+  ],
+  "repository": "https://github.com/shinken-monitoring/mod-ui-graphite",
+  "keywords": [
+    "module",
+    "broker",
+    "webui",
+    "graphite",
+    "graphs"
+  ],
+  "dependencies": {
+    "shinken": ">=1.4"
+  },
+  "license": "AGPL"
+}
