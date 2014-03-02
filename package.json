@@ -1,7 +1,7 @@
 {
   "name": "ui-graphite",
   "types": ["module"],
-  "version": "1.4",
+  "version": "1.0",
   "homepage": "http://github.com/shinken-monitoring/mod-ui-graphite",
   "author": "Jean Gabès",
   "description": "Enable Graphite graphs inside the WebUI",
