@@ -60,6 +60,14 @@ class Graphite_Webui(BaseModule):
         self.multival = re.compile(r'_(\d+)$')
         self.uri = getattr(modconf, 'uri', None)
         self.templates_path = getattr(modconf, 'templates_path', '/tmp')
+        
+        self.dashboard_view_font = getattr(modconf, 'dashboard_view_font', '8')
+        self.dashboard_view_width = getattr(modconf, 'dashboard_view_width', '320')
+        self.dashboard_view_height = getattr(modconf, 'dashboard_view_height', '240')
+        
+        self.detail_view_font = getattr(modconf, 'detail_view_font', '8')
+        self.detail_view_width = getattr(modconf, 'detail_view_width', '586')
+        self.detail_view_height = getattr(modconf, 'detail_view_height', '308')
 
         if not self.uri:
             raise Exception('The WebUI Graphite module is missing uri parameter.')
@@ -123,12 +131,31 @@ class Graphite_Webui(BaseModule):
     # Private function to replace the fontsize uri parameter by the correct value
     # or add it if not present.
     def _replaceFontSize ( self, url, newsize ):
-
-    # Do we have fontSize in the url already, or not ?
+        # Do we have fontSize in the url already, or not ?
         if re.search('fontSize=',url) is None:
             url = url + '&fontSize=' + newsize
         else:
             url = re.sub(r'(fontSize=)[^\&]+',r'\g<1>' + newsize , url);
+        return url
+
+    # Private function to replace the width uri parameter by the correct value
+    # or add it if not present.
+    def _replaceGraphWidth ( self, url, newwidth ):
+        # Do we have graphwidth in the url already, or not ?
+        if re.search('width=',url) is None:
+            url = url + '&width=' + newwidth
+        else:
+            url = re.sub(r'(width=)[^\&]+',r'\g<1>' + newwidth , url);
+        return url
+
+    # Private function to replace the height uri parameter by the correct value
+    # or add it if not present.
+    def _replaceGraphHeight ( self, url, newheight ):
+        # Do we have graphwidth in the url already, or not ?
+        if re.search('height=',url) is None:
+            url = url + '&height=' + newheight
+        else:
+            url = re.sub(r'(height=)[^\&]+',r'\g<1>' + newheight , url);
         return url
 
 
@@ -137,8 +164,13 @@ class Graphite_Webui(BaseModule):
     # Ask for an host or a service the graph UI that the UI should
     # give to get the graph image link and Graphite page link too.
     def get_graph_uris(self, elt, graphstart, graphend, source = 'detail'):
-        # Ugly to hard-code such values. But where else should I put them ?
-        fontsize={ 'detail': '8', 'dashboard': '18'}
+        # Graph font size
+        fontsize={ '': self.detail_view_font, 'detail': self.detail_view_font, 'dashboard': self.dashboard_view_font}
+        # Graph widths
+        graphwidth={ '': self.detail_view_width, 'detail': self.detail_view_width, 'dashboard': self.dashboard_view_width}
+        # Graph heights
+        graphheight={ '': self.detail_view_height, 'detail': self.detail_view_height, 'dashboard': self.dashboard_view_height}
+        
         if not elt:
             return []
 
@@ -180,7 +212,9 @@ class Graphite_Webui(BaseModule):
             if not os.path.isfile(thefile):
                 thefile = os.path.join(self.templates_path, filename) 
 
+        logger.debug("[Graphite UI] Template filename: %s" % thefile)
         if os.path.isfile(thefile):
+            logger.debug("[Graphite UI] Found template: %s" % thefile)
             template_html = ''
             with open(thefile, 'r') as template_file:
                 template_html += template_file.read()
@@ -191,9 +225,11 @@ class Graphite_Webui(BaseModule):
             values = {}
             if t == 'host':
                 values['host'] = graphite_pre + self.illegal_char.sub("_", elt.host_name) + data_source
+                values['hostname'] = self.illegal_char.sub('_', elt.host_name)
                 values['service'] = '__HOST__'
             if t == 'service':
                 values['host'] = graphite_pre + self.illegal_char.sub("_", elt.host.host_name) + data_source
+                values['hostname'] = self.illegal_char.sub('_', elt.host_name)
                 values['service'] = self.illegal_char.sub("_", elt.service_description) + graphite_post
             values['uri'] = self.uri
             # Split, we may have several images.
@@ -203,9 +239,12 @@ class Graphite_Webui(BaseModule):
                     v['link'] = self.uri
                     v['img_src'] = img.replace('"', "'") + "&from=" + d + "&until=" + e
                     v['img_src'] = self._replaceFontSize(v['img_src'], fontsize[source])
+                    v['img_src'] = self._replaceGraphWidth(v['img_src'], graphwidth[source])
+                    v['img_src'] = self._replaceGraphHeight(v['img_src'], graphheight[source])
                     r.append(v)
             # No need to continue, we have the images already.
             return r
+        logger.debug("[Graphite UI] No template found.")
 
         # If no template is present, then the usual way
 
@@ -233,9 +272,12 @@ class Graphite_Webui(BaseModule):
                 v['link'] = self.uri
                 v['img_src'] = uri
                 v['img_src'] = self._replaceFontSize(v['img_src'], fontsize[source])
+                v['img_src'] = self._replaceGraphWidth(v['img_src'], graphwidth[source])
+                v['img_src'] = self._replaceGraphHeight(v['img_src'], graphheight[source])
                 r.append(v)
 
             return r
+            
         if t == 'service':
             couples = self.get_metric_and_value(elt.perf_data)
 
@@ -265,6 +307,8 @@ class Graphite_Webui(BaseModule):
                 v['link'] = self.uri
                 v['img_src'] = uri
                 v['img_src'] = self._replaceFontSize(v['img_src'], fontsize[source])
+                v['img_src'] = self._replaceGraphWidth(v['img_src'], graphwidth[source])
+                v['img_src'] = self._replaceGraphHeight(v['img_src'], graphheight[source])
                 r.append(v)
             return r
 
