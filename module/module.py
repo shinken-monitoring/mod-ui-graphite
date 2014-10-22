@@ -102,7 +102,7 @@ class Graphite_Webui(BaseModule):
                 pass
 
             name = self.illegal_char.sub('_', e.name)
-            name = self.multival.sub(r'.*', name)
+            name = self.multival.sub(r'.\1', name)
 
             # get metric value and its thresholds values if they exist
             name_value = {name: (e.value, e.uom)}
