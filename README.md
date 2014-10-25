@@ -9,3 +9,7 @@ Shinken module for enabling graphs from Graphite into WebUI
 Installation
 ------------
 `$ shinken install ui-graphite`
+
+Bugfix
+------------
+* fix the incompatible metric name process with the module graphite of shinken
