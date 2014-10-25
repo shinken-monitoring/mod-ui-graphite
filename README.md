@@ -12,4 +12,4 @@ Installation
 
 Bugfix
 ------------
-* fix the incompatible metric name process with the module graphite of shinken
+* fix the incompatible metric name derive process with the module graphite of shinken
