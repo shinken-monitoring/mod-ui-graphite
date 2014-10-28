@@ -9,7 +9,7 @@ Shinken module for enabling graphs from Graphite into WebUI
 Installation
 ------------
 * `$ shinken install ui-graphite`
-* **clone** the this git repo and copy the **module.py** file to the **/var/lib/shinken/modules/ui-graphite**dir.(assuming you install shinken lib in default dir)
+* **clone** the this git repo and copy the **module.py** file to the **/var/lib/shinken/modules/ui-graphite** dir.(assuming you install shinken lib in default dir)
 
 Bugfix
 ------------
