@@ -180,6 +180,7 @@ class Graphite_Webui(BaseModule):
             if not os.path.isfile(thefile):
                 thefile = os.path.join(self.templates_path, filename) 
 
+        logger.debug("[ui-graphite] template=%s", thefile)
         if os.path.isfile(thefile):
             template_html = ''
             with open(thefile, 'r') as template_file:
