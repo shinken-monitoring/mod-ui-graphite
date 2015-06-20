@@ -98,6 +98,30 @@ class Graphite_Webui(BaseModule):
                                     getattr(modconf, 'graphite_data_source', ''))
         logger.info("[Graphite UI] Configuration - Graphite data source: %s", self.graphite_data_source)
 
+
+        # optional perfdatas to be filtered
+        self.filtered_metrics = {}
+        filters = getattr(modconf, 'filter', [])
+        for filter in filters:
+            filtered_service, filtered_metric = filter.split(':')
+            if filtered_service not in self.filtered_metrics:
+                self.filtered_metrics[filtered_service] = []
+            self.filtered_metrics[filtered_service].append(filtered_metric.split(','))
+        
+        for service in self.filtered_metrics:
+            logger.info("[Graphite UI] Configuration - Filtered metric: %s - %s", service, self.filtered_metrics[service])
+
+        # Use warning, critical, min, max
+        self.use_warning = bool(getattr(modconf, 'use_warning', True))
+        logger.info("[Graphite UI] Configuration - use warning metrics: %d", self.use_warning)
+        self.use_critical = bool(getattr(modconf, 'use_critical', True))
+        logger.info("[Graphite UI] Configuration - use critical metrics: %d", self.use_critical)
+        self.use_min = bool(getattr(modconf, 'use_min', True))
+        logger.info("[Graphite UI] Configuration - use min metrics: %d", self.use_min)
+        self.use_max = bool(getattr(modconf, 'use_max', True))
+        logger.info("[Graphite UI] Configuration - use max metrics: %d", self.use_max)
+        
+        
     # Try to connect if we got true parameter
     def init(self):
         pass
@@ -112,61 +136,98 @@ class Graphite_Webui(BaseModule):
 
     # For a perf_data like /=30MB;4899;4568;1234;0  /var=50MB;4899;4568;1234;0 /toto=
     # return ('/', '30'), ('/var', '50')
-    def get_metric_and_value(self, perf_data):
-        res = []
+    def get_metric_and_value(self, service, perf_data):
+        result = []
         metrics = PerfDatas(perf_data)
 
         for e in metrics:
-            try:
-                logger.debug("[Graphite UI] groking: %s" % str(e))
-            except UnicodeEncodeError:
-                pass
-
-            name = self.illegal_char.sub('_', e.name)
+            if service in self.filtered_metrics:
+                if e.name in self.filtered_metrics[service]:
+                    logger.warning("[Graphite UI] Ignore metric '%s' for filtered service: %s", e.name, service)
+                    continue
+                
+            name = self.illegal_char_metric.sub('_', e.name)
             name = self.multival.sub(r'.\1', name)
 
-            # get metric value and its thresholds values if they exist
-            name_value = {name: (e.value, e.uom)}
-            if e.warning and e.critical:
-                name_value[name + '_warn'] = e.warning
-                name_value[name + '_crit'] = e.critical
-            # bailout if need
-            if name_value[name] == '':
+            # bailout if no value
+            if name == '':
                 continue
-            try:
-                logger.debug("[Graphite UI] Got in the end: %s, %s" % (name, e.value))
-            except UnicodeEncodeError:
-                pass
-            for key, value in name_value.items():
-                res.append((key, value))
-        return res
+                
+            # get metric value and its thresholds values if they exist
+            metric = dict()
+            metric['name'] = name
+            metric['uom'] = e.uom
+                
+            # Get or ignore extra values depending upon module configuration
+            if e.warning and self.use_warning:
+                metric['warning'] = e.warning
+                
+            if e.critical and self.use_critical:
+                metric['critical'] = e.critical
+                
+            if e.min and self.use_min:
+                metric['min'] = e.min
+                
+            if e.max and self.use_max:
+                metric['max'] = e.max
+                
+            result.append(metric)
+
+        logger.debug("[Graphite UI] get_metric_and_value: %s", result)
+        return result
+
 
     # Private function to replace the fontsize uri parameter by the correct value
     # or add it if not present.
     def _replaceFontSize ( self, url, newsize ):
-
-    # Do we have fontSize in the url already, or not ?
+        # Do we have fontSize in the url already, or not ?
         if re.search('fontSize=',url) is None:
             url = url + '&fontSize=' + newsize
         else:
             url = re.sub(r'(fontSize=)[^\&]+',r'\g<1>' + newsize , url);
         return url
 
+    # Private function to replace the width uri parameter by the correct value
+    # or add it if not present.
+    def _replaceGraphWidth ( self, url, newwidth ):
+        # Do we have graphwidth in the url already, or not ?
+        if re.search('width=',url) is None:
+            url = url + '&width=' + newwidth
+        else:
+            url = re.sub(r'(width=)[^\&]+',r'\g<1>' + newwidth , url);
+        return url
+
+    # Private function to replace the height uri parameter by the correct value
+    # or add it if not present.
+    def _replaceGraphHeight ( self, url, newheight ):
+        # Do we have graphwidth in the url already, or not ?
+        if re.search('height=',url) is None:
+            url = url + '&height=' + newheight
+        else:
+            url = re.sub(r'(height=)[^\&]+',r'\g<1>' + newheight , url);
+        return url
 
 
 
     # Ask for an host or a service the graph UI that the UI should
     # give to get the graph image link and Graphite page link too.
-    def get_graph_uris(self, elt, graphstart, graphend, source = 'detail'):
-        # Ugly to hard-code such values. But where else should I put them ?
-        fontsize={ 'detail': '8', 'dashboard': '18'}
+    def get_graph_uris(self, elt, graphstart, graphend, source = 'detail', width = 0, height = 0):
+        logger.debug("[Graphite UI] get graphs URI for %s (%s view): ", elt.host_name, source)
+        
         if not elt:
             return []
 
         t = elt.__class__.my_type
         r = []
 
-        # Hanling Graphite variables
+        # Graph font size
+        fontsize={ '': self.detail_view_font, 'detail': self.detail_view_font, 'dashboard': self.dashboard_view_font}
+        # Graph width
+        graphwidth={ '': self.detail_view_width, 'detail': self.detail_view_width, 'dashboard': self.dashboard_view_width}
+        # Graph height
+        graphheight={ '': self.detail_view_height, 'detail': self.detail_view_height, 'dashboard': self.dashboard_view_height}
+        
+        # Handling Graphite variables
         data_source=""
         graphite_pre=""
         graphite_post=""
@@ -174,12 +235,12 @@ class Graphite_Webui(BaseModule):
             data_source = ".%s" % self.graphite_data_source
         if t == 'host':
             if "_GRAPHITE_PRE" in elt.customs:
-                graphite_pre = "%s." % elt.customs["_GRAPHITE_PRE"]
+                graphite_pre = "%s." % self.illegal_char.sub("_", elt.customs["_GRAPHITE_PRE"])
         elif t == 'service':
             if "_GRAPHITE_PRE" in elt.host.customs:
-                graphite_pre = "%s." % elt.host.customs["_GRAPHITE_PRE"]
+                graphite_pre = "%s." % self.illegal_char.sub("_", elt.host.customs["_GRAPHITE_PRE"])
             if "_GRAPHITE_POST" in elt.customs:
-                graphite_post = ".%s" % elt.customs["_GRAPHITE_POST"]
+                graphite_post = ".%s" % self.illegal_char.sub("_", elt.customs["_GRAPHITE_POST"])
 
         # Format the start & end time (and not only the date)
         d = datetime.fromtimestamp(graphstart)
@@ -187,9 +248,8 @@ class Graphite_Webui(BaseModule):
         e = datetime.fromtimestamp(graphend)
         e = e.strftime('%H:%M_%Y%m%d')
 
-        filename = elt.check_command.get_name().split('!')[0] + '.graph'
-
         # Do we have a template for the given source?
+        filename = elt.check_command.get_name().split('!')[0] + '.graph'
         thefile = os.path.join(self.templates_path, source, filename)
 
         # If not try to use the one for the parent folder
@@ -201,8 +261,9 @@ class Graphite_Webui(BaseModule):
             if not os.path.isfile(thefile):
                 thefile = os.path.join(self.templates_path, filename) 
 
-        logger.debug("[ui-graphite] template=%s", thefile)
+        logger.debug("[Graphite UI] Template filename: %s" % thefile)
         if os.path.isfile(thefile):
+            logger.debug("[Graphite UI] Found template: %s" % thefile)
             template_html = ''
             with open(thefile, 'r') as template_file:
                 template_html += template_file.read()
@@ -228,68 +289,56 @@ class Graphite_Webui(BaseModule):
                     r.append(v)
             # No need to continue, we have the images already.
             return r
+        logger.debug("[Graphite UI] No template found.")
 
         # If no template is present, then the usual way
-
+        # Remove all non alphanumeric character
+        hostname = self.illegal_char.sub('_', elt.host_name)
         if t == 'host':
-            couples = self.get_metric_and_value(elt.perf_data)
+            service = self.hostcheck
+        else:
+            service = self.illegal_char.sub('_', elt.service_description)
+        logger.debug("[Graphite UI] no template for an host: %s/%s", hostname, service)
+        
+        couples = self.get_metric_and_value(service, elt.perf_data)
+        if len(couples) == 0:
+            return []
 
-            # If no values, we can exit now
-            if len(couples) == 0:
-                return []
+        # For each metric ...
+        for metric in couples:
+            logger.debug("[Graphite UI] metric: %s", metric)
+            
+            uri = self.uri + 'render/?width=586&height=308&lineMode=connected&from=' + d + "&until=" + e
+            uri = self._replaceFontSize(uri, fontsize[source])
+            if width == 0:
+                uri = self._replaceGraphWidth(uri, graphwidth[source])
+            else:
+                uri = self._replaceGraphWidth(uri, width)
+            if height == 0:
+                uri = self._replaceGraphHeight(uri, graphheight[source])
+            else:
+                uri = self._replaceGraphWidth(uri, height)
+            
+            # Graph title
+            uri += '''&title=%s/%s - %s''' % (hostname, service, metric['name'])
+                                              
+            # Graph main serie
+            uri += '''&target=alias(%s%s%s.%s.%s%s,"%s")''' % (graphite_pre, hostname, data_source, service, metric['name'], graphite_post, metric['name'])
+                                              
+            if 'warning' in metric:
+                uri += '''&target=alias(constantLine(%d), "%s")''' % (metric['warning'], 'Warning')
+            if 'critical' in metric:
+                uri += '''&target=alias(constantLine(%d), "%s")''' % (metric['critical'], 'Critical')
+            if 'min' in metric:
+                uri += '''&target=alias(constantLine(%d), "%s")''' % (metric['min'], 'Min')
+            if 'max' in metric:
+                uri += '''&target=alias(constantLine(%d), "%s")''' % (metric['max'], 'Max')
+                
+            v = {}
+            v['link'] = self.uri
+            v['img_src'] = uri
+            logger.debug("[Graphite UI] uri: %s / %s", v['link'], v['img_src'])
+            r.append(v)
 
-            # Remove all non alpha numeric character
-            host_name = self.illegal_char.sub('_', elt.host_name)
-
-            # Send a bulk of all metrics at once
-            for (metric, _) in couples:
-                uri = self.uri + 'render/?width=586&height=308&lineMode=connected&from=' + d + "&until=" + e
-                if re.search(r'_warn|_crit', metric):
-                    continue
-                target = "&target=%s%s%s.__HOST__.%s" % (graphite_pre,
-                                                         host_name,
-                                                         data_source,
-                                                         metric)
-                uri += target + target + "?????"
-                v = {}
-                v['link'] = self.uri
-                v['img_src'] = uri
-                v['img_src'] = self._replaceFontSize(v['img_src'], fontsize[source])
-                r.append(v)
-
-            return r
-        if t == 'service':
-            couples = self.get_metric_and_value(elt.perf_data)
-
-            # If no values, we can exit now
-            if len(couples) == 0:
-                return []
-
-            # Remove all non alpha numeric character
-            desc = self.illegal_char.sub('_', elt.service_description)
-            host_name = self.illegal_char.sub('_', elt.host.host_name)
-
-            # Send a bulk of all metrics at once
-            for (metric, value) in couples:
-                uri = self.uri + 'render/?width=586&height=308&lineMode=connected&from=' + d + "&until=" + e
-                if re.search(r'_warn|_crit', metric):
-                    continue
-                elif value[1] == '%':
-                    uri += "&yMin=0&yMax=100"
-                target = "&target=%s%s%s.%s.%s%s" % (graphite_pre,
-                                                  host_name,
-                                                  data_source,
-                                                  desc,
-                                                  metric,
-                                                  graphite_post )
-                uri += target + target + "?????"
-                v = {}
-                v['link'] = self.uri
-                v['img_src'] = uri
-                v['img_src'] = self._replaceFontSize(v['img_src'], fontsize[source])
-                r.append(v)
-            return r
-
-        # Oups, bad type?
-        return []
-
+        return r
+            
