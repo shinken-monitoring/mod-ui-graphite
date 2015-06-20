@@ -48,7 +48,7 @@ properties = {
 
 # called by the plugin manager
 def get_instance(plugin):
-    logger.debug("[Graphite UI]Get an GRAPHITE UI module for plugin %s" % plugin.get_name())
+    logger.info("[Graphite UI] Get a graphite UI data module for plugin %s" % plugin.get_name())
 
     instance = Graphite_Webui(plugin)
     return instance
@@ -57,25 +57,46 @@ def get_instance(plugin):
 class Graphite_Webui(BaseModule):
     def __init__(self, modconf):
         BaseModule.__init__(self, modconf)
+        
+        # Separate perfdata multiple values
         self.multival = re.compile(r'_(\d+)$')
-        self.uri = getattr(modconf, 'uri', None)
-        self.templates_path = getattr(modconf, 'templates_path', '/tmp')
+        
+        # Specific filter to allow metrics to include '.' for Graphite
+        self.illegal_char_metric = re.compile(r'[^a-zA-Z0-9_.\-]')
+        
+        # service name to use for host check
+        self.hostcheck = getattr(modconf, 'hostcheck', '__HOST__')
+        
+        # Specify font and picture size for dashboard widget
+        self.dashboard_view_font = getattr(modconf, 'dashboard_view_font', '8')
+        self.dashboard_view_width = getattr(modconf, 'dashboard_view_width', '320')
+        self.dashboard_view_height = getattr(modconf, 'dashboard_view_height', '240')
+        
+        # Specify font and picture size for element view
+        self.detail_view_font = getattr(modconf, 'detail_view_font', '8')
+        self.detail_view_width = getattr(modconf, 'detail_view_width', '586')
+        self.detail_view_height = getattr(modconf, 'detail_view_height', '308')
 
+        self.uri = getattr(modconf, 'uri', None)
         if not self.uri:
             raise Exception('The WebUI Graphite module is missing uri parameter.')
-
         self.uri = self.uri.strip()
         if not self.uri.endswith('/'):
             self.uri += '/'
-
         # Change YOURSERVERNAME by our server name if we got it
         if 'YOURSERVERNAME' in self.uri:
             my_name = socket.gethostname()
             self.uri = self.uri.replace('YOURSERVERNAME', my_name)
+        logger.info("[Graphite UI] Configuration - uri: %s", self.uri)
+        
+        self.templates_path = getattr(modconf, 'templates_path', '/tmp')
+        logger.info("[Graphite UI] Configuration - templates path: %s", self.templates_path)
+
 
         # optional "sub-folder" in graphite to hold the data of a specific host
         self.graphite_data_source = self.illegal_char.sub('_',
                                     getattr(modconf, 'graphite_data_source', ''))
+        logger.info("[Graphite UI] Configuration - Graphite data source: %s", self.graphite_data_source)
 
     # Try to connect if we got true parameter
     def init(self):
