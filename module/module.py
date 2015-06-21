@@ -94,7 +94,7 @@ class Graphite_Webui(BaseModule):
 
 
         # optional "sub-folder" in graphite to hold the data of a specific host
-        self.graphite_data_source = self.illegal_char.sub('_',
+        self.graphite_data_source = self.illegal_char_metric.sub('_',
                                     getattr(modconf, 'graphite_data_source', ''))
         logger.info("[Graphite UI] Configuration - Graphite data source: %s", self.graphite_data_source)
 
@@ -212,7 +212,7 @@ class Graphite_Webui(BaseModule):
     # Ask for an host or a service the graph UI that the UI should
     # give to get the graph image link and Graphite page link too.
     def get_graph_uris(self, elt, graphstart, graphend, source = 'detail', width = 0, height = 0):
-        logger.debug("[Graphite UI] get graphs URI for %s (%s view): ", elt.host_name, source)
+        logger.debug("[Graphite UI] get graphs URI for %s (%s view)", elt.host_name, source)
         
         if not elt:
             return []
@@ -235,12 +235,12 @@ class Graphite_Webui(BaseModule):
             data_source = ".%s" % self.graphite_data_source
         if t == 'host':
             if "_GRAPHITE_PRE" in elt.customs:
-                graphite_pre = "%s." % self.illegal_char.sub("_", elt.customs["_GRAPHITE_PRE"])
+                graphite_pre = "%s." % self.illegal_char_metric.sub("_", elt.customs["_GRAPHITE_PRE"])
         elif t == 'service':
             if "_GRAPHITE_PRE" in elt.host.customs:
-                graphite_pre = "%s." % self.illegal_char.sub("_", elt.host.customs["_GRAPHITE_PRE"])
+                graphite_pre = "%s." % self.illegal_char_metric.sub("_", elt.host.customs["_GRAPHITE_PRE"])
             if "_GRAPHITE_POST" in elt.customs:
-                graphite_post = ".%s" % self.illegal_char.sub("_", elt.customs["_GRAPHITE_POST"])
+                graphite_post = ".%s" % self.illegal_char_metric.sub("_", elt.customs["_GRAPHITE_POST"])
 
         # Format the start & end time (and not only the date)
         d = datetime.fromtimestamp(graphstart)
@@ -273,11 +273,11 @@ class Graphite_Webui(BaseModule):
             # Build the dict to instantiate the template string
             values = {}
             if t == 'host':
-                values['host'] = graphite_pre + self.illegal_char.sub("_", elt.host_name) + data_source
+                values['host'] = graphite_pre + self.illegal_char_metric.sub("_", elt.host_name) + data_source
                 values['service'] = '__HOST__'
             if t == 'service':
-                values['host'] = graphite_pre + self.illegal_char.sub("_", elt.host.host_name) + data_source
-                values['service'] = self.illegal_char.sub("_", elt.service_description) + graphite_post
+                values['host'] = graphite_pre + self.illegal_char_metric.sub("_", elt.host.host_name) + data_source
+                values['service'] = self.illegal_char_metric.sub("_", elt.service_description) + graphite_post
             values['uri'] = self.uri
             # Split, we may have several images.
             for img in html.substitute(values).split('\n'):
@@ -289,16 +289,16 @@ class Graphite_Webui(BaseModule):
                     r.append(v)
             # No need to continue, we have the images already.
             return r
-        logger.debug("[Graphite UI] No template found.")
+        logger.debug("[Graphite UI] no template found.")
 
         # If no template is present, then the usual way
         # Remove all non alphanumeric character
-        hostname = self.illegal_char.sub('_', elt.host_name)
+        hostname = self.illegal_char_metric.sub('_', elt.host_name)
         if t == 'host':
             service = self.hostcheck
         else:
-            service = self.illegal_char.sub('_', elt.service_description)
-        logger.debug("[Graphite UI] no template for an host: %s/%s", hostname, service)
+            service = self.illegal_char_metric.sub('_', elt.service_description)
+        logger.debug("[Graphite UI] no template for an host/service: %s/%s", hostname, service)
         
         couples = self.get_metric_and_value(service, elt.perf_data)
         if len(couples) == 0:
