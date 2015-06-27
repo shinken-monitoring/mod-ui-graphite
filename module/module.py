@@ -32,6 +32,7 @@ import re
 import socket
 import os
 from string import Template
+import json
 
 from .graphite_utils import GraphiteURL, GraphStyle, GraphiteMetric, graphite_time
 
@@ -56,6 +57,8 @@ def get_instance(plugin):
 
 
 class TemplateNotFound(BaseException):
+    pass
+class NotJsonTemplate(BaseException):
     pass
 
 
@@ -308,6 +311,20 @@ class Graphite_Webui(BaseModule):
 
         return uris
 
+    def _parse_json_template(self,template,elt,graph_start, graph_end, source):
+        try:
+            template=json.loads(template)
+        except:
+            raise NotJsonTemplate()
+
+        style = self.get_style(source)
+        uris=[]
+        for g in template:
+            u=GraphiteURL(server=self.uri,start=graph_start,end=graph_end,style=style,**g)
+            uris.append(dict(link=u.url('composer'),img_src=u.url('render')))
+
+        return uris
+
     # retrieve uri's from a template file
     def _get_uris_from_file(self, elt, graph_start, graph_end, source):
         uris = []
@@ -325,6 +342,10 @@ class Graphite_Webui(BaseModule):
         with open(template_file, 'r') as template_file:
             template_html += template_file.read()
         # Read the template file, as template string python object
+        try:
+            return self._parse_json_template(template_html,elt,graph_start, graph_end, source)
+        except NotJsonTemplate:
+            pass
 
         html = Template(template_html)
         # Build the dict to instantiate the template string
