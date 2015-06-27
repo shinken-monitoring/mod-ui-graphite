@@ -58,8 +58,14 @@ class GraphiteURL(object):
     def parse(cls, string):
         pass
 
+    def url(self, module='render'):
+        if module not in ('render', 'composer'):
+            raise ValueError('module must be "render" or "composer" not "%s"' % module)
+        return '{0.server}{1}/?{0.style}&from={0.start}&until={0.end}&title={0.title}&{0.target_string}'.format(self,
+                                                                                                                module)
+
     def __str__(self):
-        return '{0.server}render/?{0.style}&from={0.start}&until={0.end}&title={0.title}&{0.target_string}'.format(self)
+        return self.url('render')
 
 
 # encapsulate graph styles
