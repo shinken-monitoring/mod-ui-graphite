@@ -309,8 +309,8 @@ class Graphite_Webui(BaseModule):
                     graph.add_target('alias(constantLine(%d), "%s")' % (metric['t'], t.Title()))
 
             v = dict(
-                link=self.uri,
-                img_src=str(graph)
+                link=graph.url('composer'),
+                img_src=graph.url('render')
             )
             logger.debug("[Graphite UI] uri: %s / %s", v['link'], v['img_src'])
             uris.append(v)
