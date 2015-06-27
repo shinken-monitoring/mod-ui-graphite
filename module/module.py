@@ -32,7 +32,8 @@ import re
 import socket
 import os
 from string import Template
-from datetime import datetime
+
+from .graphite_utils import GraphiteURL, GraphStyle, graphite_time
 
 from shinken.log import logger
 from shinken.basemodule import BaseModule
@@ -56,78 +57,6 @@ def get_instance(plugin):
 
 class TemplateNotFound(BaseException):
     pass
-
-
-# generate a graphite compatible time from a unix timestamp, if the value provided is not a valid timestamp, assume that we have a compatible time
-def graphite_time(timestamp):
-    try:
-        timestamp = int(timestamp)
-        return datetime.fromtimestamp(timestamp).strftime('%H:%M_%Y%m%d')
-    except ValueError:
-        return timestamp
-
-
-# programmatic representation of a graphite URL
-class GraphiteURL(object):
-    def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, targets=None):
-        self._start = ''
-        self._end = ''
-        self.server = server
-        self.start = start
-        self.end = end
-        if targets is not None:
-            self.targets = targets
-        else:
-            self.targets = []
-        self.style = style
-        self.title = title
-        pass
-
-    # ensure that the start and end times we are given are in the correct format
-    @property
-    def start(self):
-        return self._start
-
-    @start.setter
-    def start(self, value):
-        self._start = graphite_time(value)
-
-    @property
-    def end(self):
-        return self._end
-
-    @end.setter
-    def end(self, value):
-        self._end = graphite_time(value)
-
-    def add_target(self, target):
-        self.targets.append(target)
-
-    @property
-    def target_string(self):
-        return '&'.join(['target=%s' % t for t in self.targets])
-
-    @classmethod
-    def parse(cls, string):
-        pass
-
-    def __str__(self):
-        return '{0.server}render/?{0.style}&from={0.start}&until={0.end}&title={0.title}&{0.target_string}'.format(self)
-
-
-# encapsulate graph styles
-class GraphStyle(object):
-    def __init__(self, width=586, height=308, font_size=8, line_style=None):
-        self.width = int(width)
-        self.height = int(height)
-        self.font_size = int(font_size)
-        self.line_style = line_style
-
-    def __str__(self):
-        s = 'width={0.width}&height={0.height}&fontSize={0.font_size}'
-        if self.line_style is not None:
-            s += '&lineMode={0.line_style}'
-        return s.format(self)
 
 
 class Graphite_Webui(BaseModule):
