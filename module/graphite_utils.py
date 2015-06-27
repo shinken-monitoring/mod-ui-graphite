@@ -14,6 +14,20 @@ def graphite_time(timestamp):
         return timestamp
 
 
+class GraphiteTarget(object):
+    def __init__(self, target, alias=None, color=None):
+        self.target = target
+        self.alias = alias
+        self.color = color
+
+    def __str__(self):
+        s = self.target
+        if self.alias:
+            s = 'alias(%s,"%s")' % (s, self.alias)
+        if self.color:
+            s = 'color(%s,"%s")' % (s, self.color)
+
+
 # programmatic representation of a graphite URL
 class GraphiteURL(object):
     def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, targets=None):
