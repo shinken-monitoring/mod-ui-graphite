@@ -15,7 +15,7 @@ def graphite_time(timestamp):
 
 
 class GraphiteTarget(object):
-    def __init__(self, target, alias=None, color=None,**kwargs):
+    def __init__(self, target, alias=None, color=None, **kwargs):
         self.target = target
         self.alias = alias
         self.color = color
@@ -30,18 +30,20 @@ class GraphiteTarget(object):
 
 # programmatic representation of a graphite URL
 class GraphiteURL(object):
-    def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, targets=None):
+    def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, min=None, max=None, targets=None):
         self._start = ''
         self._end = ''
         self.server = server
         self.start = start
         self.end = end
         if targets is not None:
-            self.targets = targets
+            self.targets = [GraphiteTarget(t) for t in targets]
         else:
             self.targets = []
         self.style = style
         self.title = title
+        self.max = max
+        self.min = min
         pass
 
     # ensure that the start and end times we are given are in the correct format
@@ -61,8 +63,8 @@ class GraphiteURL(object):
     def end(self, value):
         self._end = graphite_time(value)
 
-    def add_target(self, target,**kwargs):
-        self.targets.append(GraphiteTarget(target,**kwargs))
+    def add_target(self, target, **kwargs):
+        self.targets.append(GraphiteTarget(target, **kwargs))
 
     @property
     def target_string(self):
@@ -75,8 +77,14 @@ class GraphiteURL(object):
     def url(self, module='render'):
         if module not in ('render', 'composer'):
             raise ValueError('module must be "render" or "composer" not "%s"' % module)
-        return '{0.server}{1}/?{0.style}&from={0.start}&until={0.end}&title={0.title}&{0.target_string}'.format(self,
-                                                                                                                module)
+        s = '{0.server}{1}/?{0.style}&from={0.start}&until={0.end}&title={0.title}'
+        if self.min:
+            s += '&yMin={0.min}'
+        if self.max:
+            s += '&yMax={0.max}'
+        s += '&{0.target_string}'
+
+        return s.format(self, module)
 
     def __str__(self):
         return self.url('render')
