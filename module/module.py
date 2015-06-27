@@ -352,7 +352,7 @@ class Graphite_Webui(BaseModule):
                 link = _replace_font_size(img.replace('"', "'") + "&from=" + graph_start + "&until=" + graph_end)
 
                 v = dict(
-                    link=self.uri,
+                    link=link.replace('/render/', '/compose/'),
                     img_src=link
                 )
                 uris.append(v)
