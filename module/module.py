@@ -180,15 +180,6 @@ class Graphite_Webui(BaseModule):
         logger.debug("[Graphite UI] get_metric_and_value: %s", result)
         return result
 
-    # Private function to replace the fontsize uri parameter by the correct value
-    # or add it if not present.
-    def _replace_font_size(self, url, newsize):
-        # Do we have fontSize in the url already, or not ?
-        if re.search('fontSize=', url) is None:
-            url = url + '&fontSize=' + newsize
-        else:
-            url = re.sub(r'(fontSize=)[^&]+', r'\g<1>' + newsize, url)
-        return url
 
     # function to retrieve the graphite prefix for a host
     def graphite_pre(self, elt):
@@ -345,13 +336,24 @@ class Graphite_Webui(BaseModule):
             service=GraphiteMetric.normalize(GraphiteMetric.join(service, self.graphite_post(elt)))
         )
 
+        # Private function to replace the fontsize uri parameter by the correct value
+        # or add it if not present.
+        def _replace_font_size(url):
+            # Do we have fontSize in the url already, or not ?
+            if re.search('fontSize=', url) is None:
+                url = url + '&fontSize=' + style.font_size
+            else:
+                url = re.sub(r'(fontSize=)[^&]+', r'\g<1>' + style.font_size, url)
+            return url
+
         # Split, we may have several images.
         for img in html.substitute(context).split('\n'):
             if not img == "":
+                link = _replace_font_size(img.replace('"', "'") + "&from=" + graph_start + "&until=" + graph_end)
+
                 v = dict(
                     link=self.uri,
-                    img_src=self._replace_font_size(
-                        img.replace('"', "'") + "&from=" + graph_start + "&until=" + graph_end, style.font_size)
+                    img_src=link
                 )
                 uris.append(v)
         return uris
