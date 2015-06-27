@@ -293,11 +293,11 @@ class Graphite_Webui(BaseModule):
             graphite_metric = GraphiteMetric.join(self.graphite_pre(elt), elt.hostname, self.graphite_data_source,
                                                   service, metric['name'], self.graphite_post(elt))
             graphite_metric = GraphiteMetric.normalize(graphite_metric)
-            graph.add_target('''alias(%s,"%s")''' % (graphite_metric, metric['name']))
+            graph.add_target(graphite_metric, alias=metric['name'], color='green')
 
             for t in ('warning', 'critical', 'min', 'max'):
                 if t in metric:
-                    graph.add_target('alias(constantLine(%d), "%s")' % (metric['t'], t.Title()))
+                    graph.add_target('constantLine(%d)' % metric['t'], alias=t.Title())
 
             v = dict(
                 link=graph.url('composer'),
