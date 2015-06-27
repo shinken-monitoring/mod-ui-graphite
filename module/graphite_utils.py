@@ -75,3 +75,15 @@ class GraphStyle(object):
         if self.line_style is not None:
             s += '&lineMode={0.line_style}'
         return s.format(self)
+
+
+class GraphiteMetric(object):
+    illegal_char = re.compile(r'[^a-zA-Z0-9_.\-]')
+
+    @staticmethod
+    def join(*args):
+        return '.'.join(*args)
+
+    @classmethod
+    def normalize(cls, metric_name):
+        return cls.illegal_chars.sub("_", metric_name)

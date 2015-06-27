@@ -33,7 +33,7 @@ import socket
 import os
 from string import Template
 
-from .graphite_utils import GraphiteURL, GraphStyle, graphite_time
+from .graphite_utils import GraphiteURL, GraphStyle, GraphiteMetric, graphite_time
 
 from shinken.log import logger
 from shinken.basemodule import BaseModule
@@ -63,9 +63,6 @@ class Graphite_Webui(BaseModule):
     def __init__(self, modconf):
         BaseModule.__init__(self, modconf)
         self.app = None
-
-        # Specific filter to allow metrics to include '.' for Graphite
-        self.illegal_char_metric = re.compile(r'[^a-zA-Z0-9_.\-]')
 
         # service name to use for host check
         self.hostcheck = getattr(modconf, 'hostcheck', '__HOST__')
@@ -302,12 +299,9 @@ class Graphite_Webui(BaseModule):
             graph = GraphiteURL(server=self.uri, title=title, style=style, start=graph_start, end=graph_end)
 
             # Graph main series
-            graphite_metric = '{pre}{host}{data_source}.{service}.{metric}.{post}'.format(pre=self.graphite_pre(elt),
-                                                                                          host=elt.hostname,
-                                                                                          data_source=self.data_source,
-                                                                                          service=service,
-                                                                                          metric=metric['name'],
-                                                                                          post=self.graphite_post(elt))
+            graphite_metric = GraphiteMetric.join(self.graphite_pre(elt), elt.hostname, self.graphite_data_source,
+                                                  service, metric['name'], self.graphite_post(elt))
+            graphite_metric = GraphiteMetric.normalize(graphite_metric)
             graph.add_target('''alias(%s,"%s")''' % (graphite_metric, metric['name']))
 
             for t in ('warning', 'critical', 'min', 'max'):
@@ -344,9 +338,12 @@ class Graphite_Webui(BaseModule):
         html = Template(template_html)
         # Build the dict to instantiate the template string
 
-        context = dict(uri=self.uri,
-                       host=self.normalize_metric(self.graphite_pre(elt) + hostname + self.data_source),
-                       service=self.normalize_metric(service + self.graphite_post(elt)))
+        context = dict(
+            uri=self.uri,
+            host=GraphiteMetric.normalize(
+                GraphiteMetric.join(self.graphite_pre(elt), hostname, self.graphite_data_source)),
+            service=GraphiteMetric.normalize(GraphiteMetric.join(service, self.graphite_post(elt)))
+        )
 
         # Split, we may have several images.
         for img in html.substitute(context).split('\n'):
