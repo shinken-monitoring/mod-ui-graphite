@@ -15,7 +15,7 @@ def graphite_time(timestamp):
 
 
 class GraphiteTarget(object):
-    def __init__(self, target, alias=None, color=None):
+    def __init__(self, target, alias=None, color=None,**kwargs):
         self.target = target
         self.alias = alias
         self.color = color
@@ -61,8 +61,8 @@ class GraphiteURL(object):
     def end(self, value):
         self._end = graphite_time(value)
 
-    def add_target(self, target):
-        self.targets.append(target)
+    def add_target(self, target,**kwargs):
+        self.targets.append(GraphiteTarget(target,**kwargs))
 
     @property
     def target_string(self):
