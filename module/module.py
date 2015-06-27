@@ -198,27 +198,17 @@ class Graphite_Webui(BaseModule):
         elt_type = elt.__class__.my_type
         if elt_type == 'host':
             if "_GRAPHITE_PRE" in elt.customs:
-                return self.normalize_metric("%s." % elt.customs["_GRAPHITE_PRE"])
+                elt.customs["_GRAPHITE_PRE"]
         elif elt_type == 'service':
             if "_GRAPHITE_PRE" in elt.host.customs:
-                return self.normalize_metric("%s." % elt.host.customs["_GRAPHITE_PRE"])
+                elt.host.customs["_GRAPHITE_PRE"]
         return ''
 
-    #function to retrieve the graphite postfix for a host
+    # function to retrieve the graphite postfix for a host
     def graphite_post(self, elt):
         elt_type = elt.__class__.my_type
         if elt_type == 'service' and "_GRAPHITE_POST" in elt.customs:
-            return self.normalise_metric(".%s" % elt.customs["_GRAPHITE_POST"])
-        return ''
-
-    # normalize a metric by removing all illegal characters
-    def normalize_metric(self, metric):
-        return self.illegal_char_metric.sub("_", metric)
-
-    @property
-    def data_source(self):
-        if self.graphite_data_source:
-            return ".%s" % self.graphite_data_source
+            elt.customs["_GRAPHITE_POST"]
         return ''
 
     # check all possible template paths for a template for a particular element
@@ -367,5 +357,4 @@ class Graphite_Webui(BaseModule):
                         img.replace('"', "'") + "&from=" + graph_start + "&until=" + graph_end, style.font_size)
                 )
                 uris.append(v)
-        # No need to continue, we have the images already.
         return uris
