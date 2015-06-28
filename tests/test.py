@@ -59,6 +59,12 @@ class TestGraphiteMetric(unittest.TestCase):
         self.assertEqual(GraphiteMetric.join('a.b','c'),'a.b.c')
         self.assertEqual(GraphiteMetric.join('a','b','1'),'a.b.1')
 
+    def test_normalize(self):
+        self.assertEqual(GraphiteMetric.normalize('a,,2'),'a__2')
+        self.assertEqual(GraphiteMetric.normalize('a,.2'),'a_.2')
+        self.assertEqual(GraphiteMetric.normalize(',a,2'),'_a_2')
+        self.assertEqual(GraphiteMetric.normalize('a,2,'),'a_2_')
+
 
 class TestGraphiteTime(unittest.TestCase):
     def test_unixtime_0(self):
