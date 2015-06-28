@@ -8,7 +8,8 @@ import json
 
 from .graphite_utils import GraphiteURL, GraphiteMetric, graphite_time
 
-logger=logging.getLogger('utils')
+
+logger = logging.getLogger('utils')
 
 
 class TemplateNotFound(BaseException):
@@ -245,7 +246,7 @@ class JSONTemplate(object):
             if os.path.isfile(data):
                 data = open(data, 'rt')
         except Exception as e:
-            logger.debug('Unable to read from path %s',data)
+            logger.debug('Unable to read from path %s', data)
         try:
             if hasattr(data, 'read'):
                 self.data = json.load(data)

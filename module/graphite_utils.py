@@ -107,6 +107,7 @@ class GraphiteURL(object):
     def __str__(self):
         return self.url('render')
 
+
 class GraphiteMetric(object):
     illegal_char = re.compile(r'[^a-zA-Z0-9_.\-]')
 

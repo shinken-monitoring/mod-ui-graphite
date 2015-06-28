@@ -55,6 +55,7 @@ def get_instance(plugin):
 class Graphite_Webui(BaseModule):
     def __init__(self, modconf):
         BaseModule.__init__(self, modconf)
+        self._uri = ''
         self.app = None
 
         # service name to use for host check
@@ -175,7 +176,7 @@ class Graphite_Webui(BaseModule):
         logger.debug("[Graphite UI] get_metric_and_value: %s", result)
         return result
 
-    def get_graph_uris(self, elt, graphstart, graphend, source='detail'):
-        factory = GraphFactory(elt, graphstart, graphend, source, cfg=self, log=logger)
+    def get_graph_uris(self, element, graph_start, graph_end, source='detail'):
+        factory = GraphFactory(element, graph_start, graph_end, source, cfg=self, log=logger)
         return factory.get_graph_uris()
 
