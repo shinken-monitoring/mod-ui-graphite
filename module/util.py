@@ -91,17 +91,17 @@ class GraphFactory(object):
 
     @property
     def servicename(self):
-        if self.element_type == 'host':
-            return self.cfg.hostcheck
-        else:
+        try:
             return self.element.service_description
+        except:
+            return self.cfg.hostcheck
 
     # retrieve a style with graceful fallback
     def get_style(self, name):
         try:
             return self.cfg.styles[name]
         except KeyError:
-            self.logger.warning("No style %s, falling back to default")
+            self.logger.warning("No style %s, falling back to default",name)
             return self.cfg.styles['default']
 
     @property
@@ -111,7 +111,7 @@ class GraphFactory(object):
     # Ask for an host or a service the graph UI that the UI should
     # give to get the graph image link and Graphite page link too.
     def get_graph_uris(self):
-        self.logger.debug("[Graphite UI] get graphs URI for %s (%s view)", self.element.host_name, self.source)
+        self.logger.debug("[Graphite UI] get graphs URI for %s/%s (%s view)", self.hostname,self.servicename, self.source)
 
         try:
             return self._get_uris_from_file()
@@ -152,7 +152,7 @@ class GraphFactory(object):
 
             for t in ('warning', 'critical', 'min', 'max'):
                 if t in metric:
-                    graph.add_target('constantLine(%d)' % metric['t'], alias=t.Title())
+                    graph.add_target('constantLine(%d)' % metric[t], alias=t.title())
 
             v = dict(
                 link=graph.url('composer'),
@@ -219,7 +219,7 @@ class GraphFactory(object):
         def _replace_font_size(url):
             # Do we have fontSize in the url already, or not ?
             if re.search('fontSize=', url) is None:
-                url = url + '&fontSize=' + self.style.font_size
+                url = url + '&fontSize=%d'%self.style.font_size
             else:
                 url = re.sub(r'(fontSize=)[^&]+', r'\g<1>' + self.style.font_size, url)
             return url
