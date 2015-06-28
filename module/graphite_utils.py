@@ -4,6 +4,7 @@
 
 from datetime import datetime
 import re
+import logging
 
 
 
@@ -34,9 +35,18 @@ class GraphiteTarget(object):
     def __init__(self, target='', alias=None, color=None, **kwargs):
         if not target:
             raise ValueError('Target is required')
-        self.target = target
-        self.alias = alias
-        self.color = color
+        if target.__class__ is GraphiteTarget:
+            self.__dict__ = dict(target.__dict__)
+            if alias is not None:
+                self.alias=alias
+            if color is not None:
+                self.color=color
+        elif isinstance(target,dict):
+            self.__init__(**target)
+        else:
+            self.target = target
+            self.alias = alias
+            self.color = color
 
     def __str__(self):
         s = self.target
@@ -49,21 +59,24 @@ class GraphiteTarget(object):
 
 # programmatic representation of a graphite URL
 class GraphiteURL(object):
-    def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, min=None, max=None, targets=None):
+    def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, min=None, max=None, targets=None,**kwargs):
         self._start = ''
         self._end = ''
         self.server = server
         self.start = start
         self.end = end
+        self.targets = []
         if targets is not None:
-            self.targets = [GraphiteTarget(t) for t in targets]
-        else:
-            self.targets = []
+            for t in targets:
+                self.add_target(t)
         self.style = style
+        for k in ('height','width','font_size','line_style'):
+            if k in kwargs:
+                setattr(self.style,k,kwargs[k])
         self.title = title
         self.max = max
         self.min = min
-        self._targets=''
+        self._targets = ''
         pass
 
     # ensure that the start and end times we are given are in the correct format
@@ -84,14 +97,19 @@ class GraphiteURL(object):
         self._end = graphite_time(value)
 
     def add_target(self, target, **kwargs):
-        self._targets=''
+        self._targets = ''
         self.targets.append(GraphiteTarget(target, **kwargs))
 
     @property
     def target_string(self):
-        if not self._targets:
-            self._targets='&'.join(['target=%s' % t for t in self.targets])
-        return self._targets
+        try:
+            if not self._targets:
+                self._targets = '&'.join(['target=%s' % t for t in self.targets])
+            return self._targets
+        except:
+            logging.exception('Unable to generate target string')
+            logging.error(self.targets)
+            raise
 
     @classmethod
     def parse(cls, string):
@@ -121,7 +139,7 @@ class GraphiteMetric(object):
 
     @staticmethod
     def join(*args):
-        return '.'.join([str(a) for a in args])
+        return '.'.join([str(a) for a in args if a])
 
     @classmethod
     def normalize(cls, metric_name):
