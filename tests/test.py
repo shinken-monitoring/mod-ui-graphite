@@ -78,23 +78,49 @@ class TestJSONTemplate(unittest.TestCase):
         {
             "width": 586,
             "height": 308,
-            "title": "Response Time on {{host}}",
+            "title": "Response Time on {host}",
             "min": 0,
             "targets": [
                 {
-                    "target": "legendValue(alias({{host}}.{{service}}.rta,\"Response Time\"),\"last\")"
+                    "target": 'legendValue(alias({host}.{service}.rta,"Response Time"),"last")'
                 }
             ]
         },
         {
             "width": 586,
             "height": 308,
-            "title": "Packet Loss Percentage on {{host}}",
+            "title": "Packet Loss Percentage on {host}",
             "min": 0,
             "max": 100,
             "targets": [
                 {
-                    "target": "legendValue(alias({{host}}.{{service}}.pl,\"Packet loss percentage\"),\"last\")"
+                    "target": 'legendValue(alias({host}.{service}.pl,"Packet loss percentage"),"last")'
+                }
+            ]
+        }
+    ]
+
+    filled = [
+        {
+            "width": 586,
+            "height": 308,
+            "title": "Response Time on testhost",
+            "min": 0,
+            "targets": [
+                {
+                    "target": 'legendValue(alias(testhost.testservice.rta,"Response Time"),"last")'
+                }
+            ]
+        },
+        {
+            "width": 586,
+            "height": 308,
+            "title": "Packet Loss Percentage on testhost",
+            "min": 0,
+            "max": 100,
+            "targets": [
+                {
+                    "target": 'legendValue(alias(testhost.testservice.pl,"Packet loss percentage"),"last")'
                 }
             ]
         }
@@ -105,15 +131,38 @@ class TestJSONTemplate(unittest.TestCase):
         template = JSONTemplate(file_path)
         self.assertEqual(template.data, self.data)
 
+    def test_load_bad_path(self):
+        file_path = os.path.join(ROOT_PATH, 'templates', 'graphite', 'check_cpu.graph')
+        with self.assertRaises(JSONTemplate.NotJsonTemplate):
+            JSONTemplate(file_path)
+
+    def test_load_bad_data(self):
+        with self.assertRaises(JSONTemplate.NotJsonTemplate):
+            JSONTemplate('file_path')
+
     def test_load_file(self):
         file_path = os.path.join(ROOT_PATH, 'templates', 'graphite', 'check-host-alive.graph')
         template = JSONTemplate(open(file_path, 'rt'))
         self.assertEqual(template.data, self.data)
 
     def test_load_string(self):
-        file_path = os.path.join(ROOT_PATH, 'templates', 'graphite', 'check-host-alive.graph')
         template = JSONTemplate(json.dumps(self.data))
         self.assertEqual(template.data, self.data)
+
+    def test_fill(self):
+        context = dict(host='testhost', service='testservice')
+        d = JSONTemplate._fill_template(self.data, context)
+        self.assertEqual(d, self.filled)
+        self.assertEqual(self.data, self.data)
+        self.assertNotEqual(d, self.data)
+
+    def test_load_and_fill(self):
+        template = JSONTemplate(json.dumps(self.data))
+        context = dict(host='testhost', service='testservice')
+        d = template.fill(context)
+        self.assertEqual(d, self.filled)
+        self.assertEqual(template.data, self.data)
+        self.assertNotEqual(d, template.data)
 
 
 class TestGraphFactory(unittest.TestCase):
