@@ -31,7 +31,9 @@ def graphite_time(timestamp):
 
 
 class GraphiteTarget(object):
-    def __init__(self, target, alias=None, color=None, **kwargs):
+    def __init__(self, target='', alias=None, color=None, **kwargs):
+        if not target:
+            raise ValueError('Target is required')
         self.target = target
         self.alias = alias
         self.color = color
