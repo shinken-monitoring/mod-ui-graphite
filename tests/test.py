@@ -2,9 +2,12 @@ import unittest
 import urlparse
 import sys
 import os
+import json
 import time
 from datetime import datetime
+import logging
 
+logging.basicConfig(level=logging.DEBUG)
 
 FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 ROOT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../'))
@@ -96,9 +99,20 @@ class TestJSONTemplate(unittest.TestCase):
             ]
         }
     ]
+
     def test_load_file_path(self):
-        file_path = os.path.join(ROOT_PATH, 'tempaltes', 'graphite', 'check-host-alive.graph')
+        file_path = os.path.join(ROOT_PATH, 'templates', 'graphite', 'check-host-alive.graph')
         template = JSONTemplate(file_path)
+        self.assertEqual(template.data, self.data)
+
+    def test_load_file(self):
+        file_path = os.path.join(ROOT_PATH, 'templates', 'graphite', 'check-host-alive.graph')
+        template = JSONTemplate(open(file_path, 'rt'))
+        self.assertEqual(template.data, self.data)
+
+    def test_load_string(self):
+        file_path = os.path.join(ROOT_PATH, 'templates', 'graphite', 'check-host-alive.graph')
+        template = JSONTemplate(json.dumps(self.data))
         self.assertEqual(template.data, self.data)
 
 
