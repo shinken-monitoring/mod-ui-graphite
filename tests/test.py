@@ -7,13 +7,13 @@ import time
 from datetime import datetime
 import logging
 
-logging.basicConfig(level=logging.WARN)
+logging.basicConfig(level=logging.ERROR)
 
 FILE_PATH = os.path.dirname(os.path.realpath(__file__))
 ROOT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../'))
 sys.path.append(ROOT_PATH)
 
-from module.util import JSONTemplate, GraphFactory,TemplateNotFound
+from module.util import JSONTemplate, GraphFactory, TemplateNotFound
 from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, GraphiteMetric, graphite_time
 from fake_shinken import Host, CheckCommand, Service, ShinkenModuleConfig
 
@@ -310,7 +310,7 @@ class TestJSONTemplate(unittest.TestCase):
 
 class TestGraphFactory(unittest.TestCase):
     def setUp(self):
-        self.maxDiff=None
+        self.maxDiff = None
         self.host = Host('testhost', CheckCommand('check-host-alive'))
         self.service_cpu = Service('check_cpu', self.host, CheckCommand('check_cpu'))
         self.service_test = Service('testservice', self.host, CheckCommand('testservice'))
@@ -319,7 +319,8 @@ class TestGraphFactory(unittest.TestCase):
         self.config.set_value('hostcheck', '__HOST__')
         self.config.set_value('uri', 'http://example.com/')
         self.config.set_value('graphite_data_source', '')
-        self.config.set_value('get_metric_and_value', lambda x,y: [{'name':'testMetric','uom':'msec','min':0,'critical':500,'warning':600}] )
+        self.config.set_value('get_metric_and_value', lambda x, y: [
+            {'name': 'testMetric', 'uom': 'msec', 'min': 0, 'critical': 500, 'warning': 600}])
         self.styles = {
             'default': GraphStyle(),
             'detail': GraphStyle(),
@@ -338,7 +339,7 @@ class TestGraphFactory(unittest.TestCase):
         self.assertEqual(fact.style, self.styles['dashboard'])
         self.assertEqual(fact.get_style('test'), self.styles['default'])
         uris = fact.get_graph_uris()
-        self.assertEqual(len(uris),2)
+        self.assertEqual(len(uris), 2)
         self.assertEqual(uris[0], {
             'link': 'http://example.com/composer/?width=586&height=308&fontSize=4&from=17:00_19691231&until=07:53_19700102&title=Response Time on testhost&yMin=0&target=legendValue(alias(testhost.__HOST__.rta,"Response Time"),"last")',
             'img_src': 'http://example.com/render/?width=586&height=308&fontSize=4&from=17:00_19691231&until=07:53_19700102&title=Response Time on testhost&yMin=0&target=legendValue(alias(testhost.__HOST__.rta,"Response Time"),"last")'
@@ -361,7 +362,7 @@ class TestGraphFactory(unittest.TestCase):
         self.assertEqual(fact.style, self.styles['detail'])
         self.assertEqual(fact.get_style('test'), self.styles['default'])
         uris = fact.get_graph_uris()
-        self.assertEqual(len(uris),1)
+        self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
             'link': '''http://example.com/compose/?width=586&height=308&_salt=1333718798.689&target=alias(legendValue(testhost.check_cpu.'user'%2C%22last%22)%2C%22User%22)&target=alias(legendValue(testhost.check_cpu.'sys'%2C%22last%22)%2C%22Sys%22)&target=alias(legendValue(testhost.check_cpu.'softirq'%2C%22last%22)%2C%22SoftIRQ%22)&target=alias(legendValue(testhost.check_cpu.'nice'%2C%22last%22)%2C%22Nice%22)&target=alias(legendValue(testhost.check_cpu.'irq'%2C%22last%22)%2C%22IRQ%22)&target=alias(legendValue(testhost.check_cpu.'iowait'%2C%22last%22)%2C%22I%2FO%20Wait%22)&target=alias(legendValue(testhost.check_cpu.'idle'%2C%22last%22)%2C%22Idle%22)&fgcolor=000000&bgcolor=FFFFFF)&areaMode=stacked&yMax=100&from=17:00_19691231&until=07:53_19700102&fontSize=8''',
             'img_src': '''http://example.com/render/?width=586&height=308&_salt=1333718798.689&target=alias(legendValue(testhost.check_cpu.'user'%2C%22last%22)%2C%22User%22)&target=alias(legendValue(testhost.check_cpu.'sys'%2C%22last%22)%2C%22Sys%22)&target=alias(legendValue(testhost.check_cpu.'softirq'%2C%22last%22)%2C%22SoftIRQ%22)&target=alias(legendValue(testhost.check_cpu.'nice'%2C%22last%22)%2C%22Nice%22)&target=alias(legendValue(testhost.check_cpu.'irq'%2C%22last%22)%2C%22IRQ%22)&target=alias(legendValue(testhost.check_cpu.'iowait'%2C%22last%22)%2C%22I%2FO%20Wait%22)&target=alias(legendValue(testhost.check_cpu.'idle'%2C%22last%22)%2C%22Idle%22)&fgcolor=000000&bgcolor=FFFFFF)&areaMode=stacked&yMax=100&from=17:00_19691231&until=07:53_19700102&fontSize=8'''
@@ -379,10 +380,33 @@ class TestGraphFactory(unittest.TestCase):
         self.assertEqual(fact.style, self.styles['default'])
         self.assertEqual(fact.get_style('test'), self.styles['default'])
         uris = fact.get_graph_uris()
-        self.assertEqual(len(uris),1)
+        self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
             'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(testhost.testservice.testMetric,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
             'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(testhost.testservice.testMetric,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+        })
+
+    def test_service_generate_graphite_path_mods(self):
+        fact = GraphFactory(self.service_test, 0, 140000, source='fake', log=logging, cfg=self.config)
+        self.config.graphite_data_source = 'shinken'
+        self.service_test.add_custom('_GRAPHITE_PRE', 'joe')
+        self.service_test.add_custom('_GRAPHITE_POST', 'FRED')
+        self.host.add_custom('_GRAPHITE_PRE', 'frank')
+        self.host.add_custom('_GRAPHITE_POST', 'foo')
+        self.assertEqual(fact.prefix, 'frank')
+        self.assertEqual(fact.postfix, 'FRED')
+        with self.assertRaises(TemplateNotFound):
+            logging.warning(fact.template_path)
+        self.assertEqual(fact.hostname, 'testhost')
+        self.assertEqual(fact.servicename, 'testservice')
+        self.assertEqual(fact.element_type, 'service')
+        self.assertEqual(fact.style, self.styles['default'])
+        self.assertEqual(fact.get_style('test'), self.styles['default'])
+        uris = fact.get_graph_uris()
+        self.assertEqual(len(uris), 1)
+        self.assertEqual(uris[0], {
+            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(frank.testhost.shinken.testservice.testMetric.FRED,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
+            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(frank.testhost.shinken.testservice.testMetric.FRED,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
         })
 
 
