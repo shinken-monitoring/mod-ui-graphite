@@ -12,7 +12,7 @@ class ShinkenObject(object):
     def __init__(self, check):
         self.customs = {}
         self.check_command = check
-        self.perf_data=''
+        self.perf_data = ''
 
     def add_custom(self, key, value):
         self.customs[key] = value

@@ -38,10 +38,10 @@ class GraphiteTarget(object):
         if target.__class__ is GraphiteTarget:
             self.__dict__ = dict(target.__dict__)
             if alias is not None:
-                self.alias=alias
+                self.alias = alias
             if color is not None:
-                self.color=color
-        elif isinstance(target,dict):
+                self.color = color
+        elif isinstance(target, dict):
             self.__init__(**target)
         else:
             self.target = target
@@ -59,7 +59,8 @@ class GraphiteTarget(object):
 
 # programmatic representation of a graphite URL
 class GraphiteURL(object):
-    def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, min=None, max=None, targets=None,**kwargs):
+    def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, min=None, max=None, targets=None,
+                 **kwargs):
         self._start = ''
         self._end = ''
         self.server = server
@@ -70,9 +71,9 @@ class GraphiteURL(object):
             for t in targets:
                 self.add_target(t)
         self.style = style
-        for k in ('height','width','font_size','line_style'):
+        for k in ('height', 'width', 'font_size', 'line_style'):
             if k in kwargs:
-                setattr(self.style,k,kwargs[k])
+                setattr(self.style, k, kwargs[k])
         self.title = title
         self.max = max
         self.min = min
