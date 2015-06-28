@@ -44,6 +44,7 @@ class GraphiteTarget(object):
             s = 'alias(%s,"%s")' % (s, self.alias)
         if self.color:
             s = 'color(%s,"%s")' % (s, self.color)
+        return s
 
 
 # programmatic representation of a graphite URL
