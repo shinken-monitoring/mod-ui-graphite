@@ -241,13 +241,11 @@ class JSONTemplate(object):
         pass
 
     def __init__(self, data):
-        logger.debug(data)
         try:
             if os.path.isfile(data):
                 data = open(data, 'rt')
         except Exception as e:
             logger.debug('Unable to read from path %s',data)
-            pass
         try:
             if hasattr(data, 'read'):
                 self.data = json.load(data)
