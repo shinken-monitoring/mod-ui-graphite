@@ -14,11 +14,29 @@ ROOT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../'))
 sys.path.append(ROOT_PATH)
 
 from module.util import JSONTemplate
-from module.graphite_utils import GraphStyle, graphite_time
+from module.graphite_utils import GraphStyle, GraphiteTarget, graphite_time
 
 
 class TestGraphiteTarget(unittest.TestCase):
-    pass
+    def test_empty(self):
+        with self.assertRaises(ValueError):
+            GraphiteTarget()
+
+    def test_target_only(self):
+        t = GraphiteTarget(target='test')
+        self.assertEqual(str(t), 'test')
+
+    def test_alias(self):
+        t = GraphiteTarget(target='test', alias='test')
+        self.assertEqual(str(t), 'alias(test,"test")')
+
+    def test_color(self):
+        t = GraphiteTarget(target='test', color='red')
+        self.assertEqual(str(t), 'color(test,"red")')
+
+    def test_alias_and_color(self):
+        t = GraphiteTarget(target='test', alias='test', color='red')
+        self.assertEqual(str(t), 'color(alias(test,"test"),"red")')
 
 
 class TestGraphiteURL(unittest.TestCase):
