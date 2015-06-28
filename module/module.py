@@ -176,6 +176,6 @@ class Graphite_Webui(BaseModule):
         return result
 
     def get_graph_uris(self, elt, graphstart, graphend, source='detail'):
-        factory = GraphFactory(elt, graphstart, graphend, source, cfg=self, logger=logger)
+        factory = GraphFactory(elt, graphstart, graphend, source, cfg=self, log=logger)
         return factory.get_graph_uris()
 

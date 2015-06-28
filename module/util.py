@@ -8,17 +8,19 @@ import json
 
 from .graphite_utils import GraphiteURL, GraphiteMetric, graphite_time
 
+logger=logging.getLogger('utils')
+
 
 class TemplateNotFound(BaseException):
     pass
 
 
 class GraphFactory(object):
-    def __init__(self, element, graph_start, graph_end, source='detail', logger=None, cfg=None):
-        if logger is None:
-            logger = logging.getLogger('GraphFactory')
+    def __init__(self, element, graph_start, graph_end, source='detail', log=logger, cfg=None):
+        if log is None:
+            log = logger.getLogger('GraphFactory')
         self.source = source
-        self.logger = logger
+        self.logger = log
         self.cfg = cfg
         self.element = element
         self.graph_start = graph_start
@@ -239,10 +241,12 @@ class JSONTemplate(object):
         pass
 
     def __init__(self, data):
+        logger.debug(data)
         try:
             if os.path.isfile(data):
                 data = open(data, 'rt')
-        except:
+        except Exception as e:
+            logger.debug('Unable to read from path %s',data)
             pass
         try:
             if hasattr(data, 'read'):
@@ -250,6 +254,7 @@ class JSONTemplate(object):
             else:
                 self.data = json.loads(data)
         except:
+            logger.exception('Unable to parse JSON')
             raise self.NotJsonTemplate(data)
 
     def fill(self, ctx):
