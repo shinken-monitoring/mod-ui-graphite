@@ -6,6 +6,22 @@ from datetime import datetime
 import re
 
 
+
+# encapsulate graph styles
+class GraphStyle(object):
+    def __init__(self, width=586, height=308, font_size=8, line_style=None):
+        self.width = int(width)
+        self.height = int(height)
+        self.font_size = int(font_size)
+        self.line_style = line_style
+
+    def __str__(self):
+        s = 'width={0.width}&height={0.height}&fontSize={0.font_size}'
+        if self.line_style is not None:
+            s += '&lineMode={0.line_style}'
+        return s.format(self)
+
+
 def graphite_time(timestamp):
     try:
         timestamp = int(timestamp)
@@ -88,22 +104,6 @@ class GraphiteURL(object):
 
     def __str__(self):
         return self.url('render')
-
-
-# encapsulate graph styles
-class GraphStyle(object):
-    def __init__(self, width=586, height=308, font_size=8, line_style=None):
-        self.width = int(width)
-        self.height = int(height)
-        self.font_size = int(font_size)
-        self.line_style = line_style
-
-    def __str__(self):
-        s = 'width={0.width}&height={0.height}&fontSize={0.font_size}'
-        if self.line_style is not None:
-            s += '&lineMode={0.line_style}'
-        return s.format(self)
-
 
 class GraphiteMetric(object):
     illegal_char = re.compile(r'[^a-zA-Z0-9_.\-]')
