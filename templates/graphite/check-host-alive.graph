@@ -2,23 +2,23 @@
     {
         "width":586,
         "height":308,
-        "title": "Response Time on {{host}}",
+        "title": "Response Time on {host}",
         "min":0,
         "targets":[
             {
-                "target":"legendValue(alias({{host}}.{{service}}.rta,\"Response Time\"),\"last\")"
+                "target":"legendValue(alias({host}.{service}.rta,\"Response Time\"),\"last\")"
             }
         ]
     },
     {
         "width":586,
         "height":308,
-        "title": "Packet Loss Percentage on {{host}}",
+        "title": "Packet Loss Percentage on {host}",
         "min":0,
         "max":100,
         "targets":[
             {
-                "target":"legendValue(alias({{host}}.{{service}}.pl,\"Packet loss percentage\"),\"last\")"
+                "target":"legendValue(alias({host}.{service}.pl,\"Packet loss percentage\"),\"last\")"
             }
         ]
     }
