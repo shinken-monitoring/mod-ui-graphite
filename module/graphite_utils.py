@@ -125,4 +125,4 @@ class GraphiteMetric(object):
 
     @classmethod
     def normalize(cls, metric_name):
-        return cls.illegal_chars.sub("_", metric_name)
+        return cls.illegal_char.sub("_", metric_name)
