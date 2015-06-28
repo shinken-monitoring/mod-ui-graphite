@@ -29,7 +29,7 @@ class GraphFactory(object):
 
     # property to retrieve the graphite prefix for a host
     @property
-    def graphite_pre(self):
+    def prefix(self):
         elt_type = self.element.__class__.my_type
         if elt_type == 'host':
             if "_GRAPHITE_PRE" in self.element.customs:
@@ -41,7 +41,7 @@ class GraphFactory(object):
 
     # property to retrieve the graphite postfix for a host
     @property
-    def graphite_post(self):
+    def postfix(self):
         elt_type = self.element.__class__.my_type
         if elt_type == 'service' and "_GRAPHITE_POST" in self.element.customs:
             return self.element.customs["_GRAPHITE_POST"]
@@ -144,9 +144,9 @@ class GraphFactory(object):
                                 end=self.graph_end)
 
             # Graph main series
-            graphite_metric = GraphiteMetric.join(self.graphite_pre, self.hostname,
+            graphite_metric = GraphiteMetric.join(self.prefix, self.hostname,
                                                   self.cfg.graphite_data_source,
-                                                  self.servicename, metric['name'], self.graphite_post)
+                                                  self.servicename, metric['name'], self.postfix)
             graphite_metric = GraphiteMetric.normalize(graphite_metric)
             graph.add_target(graphite_metric, alias=metric['name'], color='green')
 
@@ -176,8 +176,8 @@ class GraphFactory(object):
         context = dict(
             uri=self.cfg.uri,
             host=GraphiteMetric.normalize(
-                GraphiteMetric.join(self.graphite_pre, self.hostname, self.cfg.graphite_data_source)),
-            service=GraphiteMetric.normalize(GraphiteMetric.join(self.servicename, self.graphite_post))
+                GraphiteMetric.join(self.prefix, self.hostname, self.cfg.graphite_data_source)),
+            service=GraphiteMetric.normalize(GraphiteMetric.join(self.servicename, self.postfix))
         )
         for g in template.fill(context):
             u = GraphiteURL(server=self.cfg.uri, start=graph_start, end=graph_end, style=self.style, **g)
@@ -210,8 +210,8 @@ class GraphFactory(object):
         context = dict(
             uri=self.cfg.uri,
             host=GraphiteMetric.normalize(
-                GraphiteMetric.join(self.graphite_pre, self.hostname, self.cfg.graphite_data_source)),
-            service=GraphiteMetric.normalize(GraphiteMetric.join(self.servicename, self.graphite_post))
+                GraphiteMetric.join(self.prefix, self.hostname, self.cfg.graphite_data_source)),
+            service=GraphiteMetric.normalize(GraphiteMetric.join(self.servicename, self.postfix))
         )
 
         # Private function to replace the fontsize uri parameter by the correct value
