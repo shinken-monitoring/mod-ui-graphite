@@ -121,7 +121,7 @@ class GraphiteMetric(object):
 
     @staticmethod
     def join(*args):
-        return '.'.join(*args)
+        return '.'.join([str(a) for a in args])
 
     @classmethod
     def normalize(cls, metric_name):
