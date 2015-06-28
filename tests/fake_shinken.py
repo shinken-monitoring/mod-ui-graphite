@@ -2,15 +2,17 @@ __author__ = 'bjorn'
 
 # fake shinken objects for testing, we only implement what we need for simplicity
 
+
 class ShinkenObject(object):
-    @classmethod
-    @property
-    def my_type(cls):
-        return cls.__name__.lower()
+    class __metaclass__(type):
+        @property
+        def my_type(cls):
+            return cls.__name__.lower()
 
     def __init__(self, check):
         self.customs = {}
         self.check_command = check
+        self.perf_data=''
 
     def add_custom(self, key, value):
         self.customs[key] = value
@@ -27,7 +29,7 @@ class CheckCommand(object):
 class Host(ShinkenObject):
     def __init__(self, hostname, check):
         ShinkenObject.__init__(self, check)
-        self.hostname = hostname
+        self.host_name = hostname
         self.services = []
 
 
