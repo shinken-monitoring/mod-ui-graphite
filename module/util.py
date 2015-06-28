@@ -251,8 +251,9 @@ class JSONTemplate(object):
                 self.data = json.load(data)
             else:
                 self.data = json.loads(data)
-        except:
-            logger.exception('Unable to parse JSON')
+        except ValueError:
+            logger.debug('Unable to parse JSON')
+            logger.debug(data)
             raise self.NotJsonTemplate(data)
 
     def fill(self, ctx):
