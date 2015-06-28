@@ -30,11 +30,12 @@ class GraphFactory(object):
     # property to retrieve the graphite prefix for a host
     @property
     def prefix(self):
-        elt_type = self.element.__class__.my_type
-        if elt_type == 'host':
+        self.logger.debug(self.element.customs)
+        self.logger.debug(self.element_type)
+        if self.element_type == 'host':
             if "_GRAPHITE_PRE" in self.element.customs:
                 return self.element.customs["_GRAPHITE_PRE"]
-        elif elt_type == 'service':
+        elif self.element_type == 'service':
             if "_GRAPHITE_PRE" in self.element.host.customs:
                 return self.element.host.customs["_GRAPHITE_PRE"]
         return ''
@@ -42,8 +43,7 @@ class GraphFactory(object):
     # property to retrieve the graphite postfix for a host
     @property
     def postfix(self):
-        elt_type = self.element.__class__.my_type
-        if elt_type == 'service' and "_GRAPHITE_POST" in self.element.customs:
+        if self.element_type == 'service' and "_GRAPHITE_POST" in self.element.customs:
             return self.element.customs["_GRAPHITE_POST"]
         return ''
 
@@ -101,7 +101,7 @@ class GraphFactory(object):
         try:
             return self.cfg.styles[name]
         except KeyError:
-            self.logger.warning("No style %s, falling back to default",name)
+            self.logger.warning("No style %s, falling back to default", name)
             return self.cfg.styles['default']
 
     @property
@@ -111,7 +111,8 @@ class GraphFactory(object):
     # Ask for an host or a service the graph UI that the UI should
     # give to get the graph image link and Graphite page link too.
     def get_graph_uris(self):
-        self.logger.debug("[Graphite UI] get graphs URI for %s/%s (%s view)", self.hostname,self.servicename, self.source)
+        self.logger.debug("[Graphite UI] get graphs URI for %s/%s (%s view)", self.hostname, self.servicename,
+                          self.source)
 
         try:
             return self._get_uris_from_file()
@@ -219,7 +220,7 @@ class GraphFactory(object):
         def _replace_font_size(url):
             # Do we have fontSize in the url already, or not ?
             if re.search('fontSize=', url) is None:
-                url = url + '&fontSize=%d'%self.style.font_size
+                url = url + '&fontSize=%d' % self.style.font_size
             else:
                 url = re.sub(r'(fontSize=)[^&]+', r'\g<1>' + self.style.font_size, url)
             return url
