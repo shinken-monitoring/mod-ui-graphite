@@ -63,6 +63,7 @@ class GraphiteURL(object):
         self.title = title
         self.max = max
         self.min = min
+        self._targets=''
         pass
 
     # ensure that the start and end times we are given are in the correct format
@@ -83,11 +84,14 @@ class GraphiteURL(object):
         self._end = graphite_time(value)
 
     def add_target(self, target, **kwargs):
+        self._targets=''
         self.targets.append(GraphiteTarget(target, **kwargs))
 
     @property
     def target_string(self):
-        return '&'.join(['target=%s' % t for t in self.targets])
+        if not self._targets:
+            self._targets='&'.join(['target=%s' % t for t in self.targets])
+        return self._targets
 
     @classmethod
     def parse(cls, string):
@@ -96,12 +100,15 @@ class GraphiteURL(object):
     def url(self, module='render'):
         if module not in ('render', 'composer'):
             raise ValueError('module must be "render" or "composer" not "%s"' % module)
-        s = '{0.server}{1}/?{0.style}&from={0.start}&until={0.end}&title={0.title}'
-        if self.min:
+        s = '{0.server}{1}/?{0.style}&from={0.start}&until={0.end}'
+        if self.title:
+            s += '&title={0.title}'
+        if self.min is not None:
             s += '&yMin={0.min}'
-        if self.max:
+        if self.max is not None:
             s += '&yMax={0.max}'
-        s += '&{0.target_string}'
+        if self.target_string:
+            s += '&{0.target_string}'
 
         return s.format(self, module)
 
