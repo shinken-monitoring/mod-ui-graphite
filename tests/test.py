@@ -14,7 +14,7 @@ ROOT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../'))
 sys.path.append(ROOT_PATH)
 
 from module.util import JSONTemplate
-from module.graphite_utils import GraphStyle, GraphiteTarget, graphite_time
+from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, GraphiteMetric, graphite_time
 
 
 class TestGraphiteTarget(unittest.TestCase):
@@ -40,7 +40,13 @@ class TestGraphiteTarget(unittest.TestCase):
 
 
 class TestGraphiteURL(unittest.TestCase):
-    pass
+    def test_base(self):
+        u=GraphiteURL()
+        self.assertEqual(u.target_string,'')
+        self.assertEqual(u._end,'17:00_19691231')
+        self.assertEqual(u._start,'17:00_19691231')
+        self.assertEqual(u.url('render'),'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+
 
 
 class TestGraphiteMetric(unittest.TestCase):
