@@ -50,7 +50,14 @@ class TestGraphiteURL(unittest.TestCase):
 
 
 class TestGraphiteMetric(unittest.TestCase):
-    pass
+    def test_join(self):
+        self.assertEqual(GraphiteMetric.join(''),'')
+        self.assertEqual(GraphiteMetric.join('a'),'a')
+        self.assertEqual(GraphiteMetric.join('a','b'),'a.b')
+        self.assertEqual(GraphiteMetric.join('a','b','c'),'a.b.c')
+        self.assertEqual(GraphiteMetric.join('a','b.c'),'a.b.c')
+        self.assertEqual(GraphiteMetric.join('a.b','c'),'a.b.c')
+        self.assertEqual(GraphiteMetric.join('a','b','1'),'a.b.1')
 
 
 class TestGraphiteTime(unittest.TestCase):
