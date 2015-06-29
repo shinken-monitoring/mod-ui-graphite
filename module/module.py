@@ -139,6 +139,7 @@ class Graphite_Webui(BaseModule):
 
     # For a perf_data like /=30MB;4899;4568;1234;0  /var=50MB;4899;4568;1234;0 /toto=
     # return ('/', '30'), ('/var', '50')
+    # TODO - ask graphite for the metrics it knows about by posting to {graphiteserver}/find
     # This really belongs in the factory, however by leaving it in here we decouple the factory from any direct shinken
     # dependencies and can test without the shinken libraries installed
     def get_metric_and_value(self, service, perf_data):

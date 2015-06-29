@@ -16,6 +16,7 @@ class TemplateNotFound(BaseException):
     pass
 
 
+#TODO - Implement relative offsets to allow graphs that start some period of time ago and end now
 class GraphFactory(object):
     def __init__(self, element, graph_start, graph_end, source='detail', log=logger, cfg=None):
         if log is None:
@@ -151,6 +152,8 @@ class GraphFactory(object):
             graphite_metric = GraphiteMetric.normalize(graphite_metric)
             graph.add_target(graphite_metric, alias=metric['name'], color='green')
 
+            #TODO - Shinken appears to store these in graphite, rather than using the current value as a constant line,
+            #TODO - use the approppriate time series from graphite
             for t in ('warning', 'critical', 'min', 'max'):
                 if t in metric:
                     graph.add_target('constantLine(%d)' % metric[t], alias=t.title())

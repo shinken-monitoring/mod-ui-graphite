@@ -7,8 +7,8 @@ import re
 import logging
 
 
-
 # encapsulate graph styles
+#TODO - Add additional properties (fgColor, bgColor, unitsystem) (should these be in Style or URL??)
 class GraphStyle(object):
     def __init__(self, width=586, height=308, font_size=8, line_style=None):
         self.width = int(width)
@@ -23,6 +23,7 @@ class GraphStyle(object):
         return s.format(self)
 
 
+# TODO - Determine how to handle relative times (negative values as offset from now?)
 def graphite_time(timestamp):
     try:
         timestamp = int(timestamp)
@@ -30,7 +31,9 @@ def graphite_time(timestamp):
     except ValueError:
         return timestamp
 
-
+#TODO - Add boolean to place metric on second Y Axis
+#TODO - Evaluate other common display functions for inclusion
+# everything can just be manually put into the 'target' right now
 class GraphiteTarget(object):
     def __init__(self, target='', alias=None, color=None, **kwargs):
         if not target:
@@ -58,6 +61,7 @@ class GraphiteTarget(object):
 
 
 # programmatic representation of a graphite URL
+#TODO - Add additional properties (fgColor, bgColor, unitsystem)
 class GraphiteURL(object):
     def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, min=None, max=None, targets=None,
                  **kwargs):
