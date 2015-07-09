@@ -92,7 +92,11 @@ class Graphite_Webui(BaseModule):
         for s in ('warning', 'critical', 'min', 'max'):
             n = 'use_%s' % s
             setattr(self, n, bool(getattr(modconf, n, True)))
-            logger.info("[Graphite UI] Configuration - use %s metrics: %d", n, getattr(self, n))
+            logger.info("[Graphite UI] Configuration - %s metrics: %d", n, getattr(self, n))
+            
+            n = 'color_%s' % s
+            setattr(self, n, getattr(modconf, n, 'black'))
+            logger.info("[Graphite UI] Configuration - %s metrics: %s", n, getattr(self, n))
 
     @property
     def uri(self):

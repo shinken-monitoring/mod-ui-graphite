@@ -134,7 +134,7 @@ class GraphFactory(object):
         couples = self.cfg.get_metric_and_value(self.servicename, self.element.perf_data)
 
         if len(couples) == 0:
-            self.logger.warning('No perfdata found to graph')
+            self.logger.debug('No perfdata found to graph')
             return []
 
         # For each metric ...
@@ -154,9 +154,13 @@ class GraphFactory(object):
 
             #TODO - Shinken appears to store these in graphite, rather than using the current value as a constant line,
             #TODO - use the approppriate time series from graphite
+            #NOTE - the Graphite module allows the filtering of constant metrics to avoid storing warn, crit, ... in Graphite!
+            #NOTE - constantLine function is much appropriate in this case.
+            colors = {'warning': 'orange', 'critical': 'red', 'min':'blue', 'max':'black'}
             for t in ('warning', 'critical', 'min', 'max'):
                 if t in metric:
-                    graph.add_target('constantLine(%d)' % metric[t], alias=t.title())
+                    n = 'color_%s' % t
+                    graph.add_target('constantLine(%d)' % metric[t], alias=t.title(), color=getattr(self.cfg, n))
 
             v = dict(
                 link=graph.url('composer'),
