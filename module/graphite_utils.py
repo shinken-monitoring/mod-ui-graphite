@@ -82,6 +82,12 @@ class GraphiteURL(object):
         self.max = max
         self.min = min
         self._targets = ''
+        self.lineMode = None
+        if 'lineMode' in kwargs:
+            self.lineMode = kwargs['lineMode']
+        self.tz = None
+        if 'tz' in kwargs:
+            self.tz = kwargs['tz']
         pass
 
     # ensure that the start and end times we are given are in the correct format
@@ -124,6 +130,10 @@ class GraphiteURL(object):
         if module not in ('render', 'composer'):
             raise ValueError('module must be "render" or "composer" not "%s"' % module)
         s = '{0.server}{1}/?{0.style}&from={0.start}&until={0.end}'
+        if self.lineMode:
+            s += '&lineMode={0.lineMode}'
+        if self.tz:
+            s += '&tz={0.tz}'
         if self.title:
             s += '&title={0.title}'
         if self.min is not None:

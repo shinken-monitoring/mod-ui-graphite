@@ -143,7 +143,7 @@ class GraphFactory(object):
             self.logger.debug("[Graphite UI] metric: %s", metric)
             title = '%s/%s - %s' % (self.hostname, self.servicename, metric['name'])
             graph = GraphiteURL(server=self.cfg.uri, title=title, style=self.style, start=self.graph_start,
-                                end=self.graph_end)
+                                end=self.graph_end, lineMode=self.cfg.lineMode, tz=self.cfg.tz)
 
             # Graph main series
             graphite_metric = GraphiteMetric.join(self.prefix, self.hostname,

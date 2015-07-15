@@ -98,6 +98,12 @@ class Graphite_Webui(BaseModule):
             setattr(self, n, getattr(modconf, n, 'black'))
             logger.info("[Graphite UI] Configuration - %s metrics: %s", n, getattr(self, n))
 
+        # Graphs parameters
+        self.lineMode = getattr(modconf, 'lineMode', 'connected')
+        logger.info("[Graphite UI] Configuration - Graphite line mode: %s", self.lineMode)
+        self.tz = getattr(modconf, 'tz', 'Europe/Paris')
+        logger.info("[Graphite UI] Configuration - Graphite time zone: %s", self.tz)
+
     @property
     def uri(self):
         return self._uri
