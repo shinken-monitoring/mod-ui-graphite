@@ -68,7 +68,7 @@ class Graphite_Webui(BaseModule):
         self.uri = getattr(modconf, 'uri', '')
         logger.info("[Graphite UI] Configuration - uri: %s", self.uri)
 
-        self.rewrite_rules = getattr(modconf, 'rewrite_rule', '')
+        self.rewrite_rules = getattr(modconf, 'graphite_rewrite_rule', '')
         for r in self.rewrite_rules:
             try:
                 rule, sub = r.split('=', 1)
