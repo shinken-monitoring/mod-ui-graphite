@@ -149,8 +149,18 @@ class GraphiteURL(object):
         return self.url('render')
 
 
+class GraphiteRewriteRule(object):
+    def __init__(self, match, sub):
+        self.match = re.compile(match)
+        self.sub = sub
+
+    def apply(self, str):
+        return self.match.sub(self.sub, str)
+
+
 class GraphiteMetric(object):
     illegal_char = re.compile(r'[^a-zA-Z0-9_.\-]')
+    rewrite_rules = []
 
     @staticmethod
     def join(*args):
@@ -159,3 +169,15 @@ class GraphiteMetric(object):
     @classmethod
     def normalize(cls, metric_name):
         return cls.illegal_char.sub("_", metric_name)
+
+    @classmethod
+    def add_rule(cls, rule, sub):
+        if not isinstance(rule, GraphiteRewriteRule):
+            rule = GraphiteRewriteRule(rule, sub)
+        cls.rewrite_rules.append(rule)
+
+    @classmethod
+    def rewrite(self, str):
+        for r in self.rewrite_rules:
+            str = r.apply(str)
+        return str

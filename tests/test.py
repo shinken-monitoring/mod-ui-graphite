@@ -14,7 +14,8 @@ ROOT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../'))
 sys.path.append(ROOT_PATH)
 
 from module.util import JSONTemplate, GraphFactory, TemplateNotFound
-from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, GraphiteMetric, graphite_time
+from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, GraphiteMetric, graphite_time, \
+    GraphiteRewriteRule
 from fake_shinken import Host, CheckCommand, Service, ShinkenModuleConfig
 
 
@@ -306,6 +307,51 @@ class TestJSONTemplate(unittest.TestCase):
         self.assertEqual(d, self.filled)
         self.assertEqual(template.data, self.data)
         self.assertNotEqual(d, template.data)
+
+
+class TestGraphiteRewrite(unittest.TestCase):
+    def setUp(self):
+        GraphiteMetric.rewrite_rules = []
+
+    def test_simple_rewrite(self):
+        rule = GraphiteRewriteRule(r'_sum$', '')
+        base = 'abcdef'
+        r = rule.apply(base)
+        self.assertEqual(r, base)
+        r = rule.apply('_sum' + base)
+        self.assertEqual(r, '_sum' + base)
+        r = rule.apply(base + '_sum')
+        self.assertEqual(r, base)
+
+    def test_metric_single_rewrite(self):
+        self.assertEqual(len(GraphiteMetric.rewrite_rules), 0)
+        GraphiteMetric.add_rule('_sum$', '')
+        self.assertEqual(len(GraphiteMetric.rewrite_rules), 1)
+        base = 'abcdef'
+        r = GraphiteMetric.rewrite(base)
+        self.assertEqual(r, base)
+        r = GraphiteMetric.rewrite('_sum' + base)
+        self.assertEqual(r, '_sum' + base)
+        r = GraphiteMetric.rewrite(base + '_sum')
+        self.assertEqual(r, base)
+
+    def test_metric_multi_rewrite(self):
+        self.assertEqual(len(GraphiteMetric.rewrite_rules), 0)
+        GraphiteMetric.add_rule('_sum$', '')
+        GraphiteMetric.add_rule(r'^(world)', r'hello.\1')
+        self.assertEqual(len(GraphiteMetric.rewrite_rules), 2)
+        base = 'abcdef'
+        r = GraphiteMetric.rewrite(base)
+        self.assertEqual(r, base)
+        r = GraphiteMetric.rewrite('_sum' + base)
+        self.assertEqual(r, '_sum' + base)
+        r = GraphiteMetric.rewrite('world' + base)
+        self.assertEqual(r, 'hello.world' + base)
+        r = GraphiteMetric.rewrite(base + '_sum')
+        self.assertEqual(r, base)
+        r = GraphiteMetric.rewrite('world' + base + '_sum')
+        self.assertEqual(r, 'hello.world' + base)
+        pass
 
 
 class TestGraphFactory(unittest.TestCase):
