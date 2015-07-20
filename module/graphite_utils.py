@@ -8,7 +8,7 @@ import logging
 
 
 # encapsulate graph styles
-#TODO - Add additional properties (fgColor, bgColor, unitsystem) (should these be in Style or URL??)
+# TODO - Add additional properties (fgColor, bgColor, unitsystem) (should these be in Style or URL??)
 class GraphStyle(object):
     def __init__(self, width=586, height=308, font_size=8, line_style=None):
         self.width = int(width)
@@ -30,6 +30,7 @@ def graphite_time(timestamp):
         return datetime.fromtimestamp(timestamp).strftime('%H:%M_%Y%m%d')
     except ValueError:
         return timestamp
+
 
 #TODO - Add boolean to place metric on second Y Axis
 #TODO - Evaluate other common display functions for inclusion
