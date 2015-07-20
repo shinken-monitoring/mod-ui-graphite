@@ -31,7 +31,7 @@ for mainly get graphs and links.
 import re
 import socket
 
-from .graphite_utils import GraphStyle
+from .graphite_utils import GraphStyle, GraphiteMetric
 from .util import GraphFactory
 from shinken.log import logger
 from shinken.basemodule import BaseModule
@@ -67,6 +67,16 @@ class Graphite_Webui(BaseModule):
 
         self.uri = getattr(modconf, 'uri', '')
         logger.info("[Graphite UI] Configuration - uri: %s", self.uri)
+
+        self.rewrite_rules = getattr(modconf, 'rewrite_rule', '')
+        for r in self.rewrite_rules:
+            try:
+                rule, sub = r.split('=', 1)
+            except ValueError:
+                logger.warning('Unable to split "%s" into a rule an a substitution'.r)
+                logger.warning('Expected rule in format "rule=substitution"')
+                continue
+            GraphiteMetric.add_rule(rule.strip(), sub.strip())
 
         self.templates_path = getattr(modconf, 'templates_path', '/tmp')
         logger.info("[Graphite UI] Configuration - templates path: %s", self.templates_path)
