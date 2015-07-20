@@ -37,21 +37,21 @@ class TestGraphiteTarget(unittest.TestCase):
 
     def test_alias_and_color(self):
         t = GraphiteTarget(target='test', alias='test', color='red')
-        self.assertEqual(str(t), 'color(alias(test,"test"),"red")')
+        self.assertEqual(str(t), 'alias(color(test,"red"),"test")')
 
     def test_target_from_target(self):
         t1 = GraphiteTarget(target='test', alias='test', color='red')
         t = GraphiteTarget(t1)
         self.assertEqual(t1.__dict__, t.__dict__)
-        self.assertEqual(str(t1), 'color(alias(test,"test"),"red")')
-        self.assertEqual(str(t), 'color(alias(test,"test"),"red")')
+        self.assertEqual(str(t1), 'alias(color(test,"red"),"test")')
+        self.assertEqual(str(t), 'alias(color(test,"red"),"test")')
 
     def test_target_from_target_mod(self):
         t1 = GraphiteTarget(target='test', alias='test', color='red')
         t = GraphiteTarget(t1, alias='Fred', color='yellow')
         self.assertNotEqual(t1.__dict__, t.__dict__)
-        self.assertEqual(str(t1), 'color(alias(test,"test"),"red")')
-        self.assertEqual(str(t), 'color(alias(test,"Fred"),"yellow")')
+        self.assertEqual(str(t1), 'alias(color(test,"red"),"test")')
+        self.assertEqual(str(t), 'alias(color(test,"yellow"),"Fred")')
 
 
 class TestGraphiteURL(unittest.TestCase):
@@ -382,8 +382,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(testhost.testservice.testMetric,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
-            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(testhost.testservice.testMetric,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
+            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
         })
 
     def test_service_generate_graphite_path_mods(self):
@@ -405,8 +405,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(frank.testhost.shinken.testservice.testMetric.FRED,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
-            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(frank.testhost.shinken.testservice.testMetric.FRED,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
+            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
         })
 
 

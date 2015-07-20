@@ -53,10 +53,10 @@ class GraphiteTarget(object):
 
     def __str__(self):
         s = self.target
-        if self.alias:
-            s = 'alias(%s,"%s")' % (s, self.alias)
         if self.color:
             s = 'color(%s,"%s")' % (s, self.color)
+        if self.alias:
+            s = 'alias(%s,"%s")' % (s, self.alias)
         return s
 
 
