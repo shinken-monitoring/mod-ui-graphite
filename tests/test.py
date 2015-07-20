@@ -364,6 +364,13 @@ class TestGraphFactory(unittest.TestCase):
         self.config.set_value('templates_path', os.path.join(ROOT_PATH, 'templates', 'graphite'))
         self.config.set_value('hostcheck', '__HOST__')
         self.config.set_value('uri', 'http://example.com/')
+        self.config.set_value('tz', None)
+        self.config.set_value('lineMode', None)
+        self.config.set_value('color_warning', None)
+        self.config.set_value('color_critical', None)
+        self.config.set_value('color_min', None)
+        self.config.set_value('color_max', None)
+        self.config.set_value('lineMode', None)
         self.config.set_value('graphite_data_source', '')
         self.config.set_value('get_metric_and_value', lambda x, y: [
             {'name': 'testMetric', 'uom': 'msec', 'min': 0, 'critical': 500, 'warning': 600}])
