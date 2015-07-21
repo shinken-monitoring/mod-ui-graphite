@@ -32,8 +32,25 @@ def graphite_time(timestamp):
         return timestamp
 
 
-#TODO - Add boolean to place metric on second Y Axis
-#TODO - Evaluate other common display functions for inclusion
+class GraphiteFunction(object):
+    def __init__(self, name, args):
+        self.name = name
+        self.args = args
+
+    def __str__(self):
+        return '{0.name}({1})'.format(self, ','.join([str(x) for x in self.args]))
+
+
+class GraphiteString(object):
+    def __init__(self, s):
+        self.s = s.strip('"')
+
+    def __str__(self):
+        return '"{0.s}"'.format(self)
+
+
+# TODO - Add boolean to place metric on second Y Axis
+# TODO - Evaluate other common display functions for inclusion
 # everything can just be manually put into the 'target' right now
 class GraphiteTarget(object):
     def __init__(self, target='', alias=None, color=None, **kwargs):
@@ -155,13 +172,25 @@ class GraphiteRewriteRule(object):
         self.match = re.compile(match)
         self.sub = sub
 
-    def apply(self, str):
-        return self.match.sub(self.sub, str)
+    def apply(self, metric):
+        return self.match.sub(self.sub, metric)
 
 
 class GraphiteMetric(object):
     illegal_char = re.compile(r'[^a-zA-Z0-9_.\-]')
     rewrite_rules = []
+
+    def __init__(self, *parts):
+        self.parts = list()
+        for p in parts:
+            self.parts.extend(p.split('.'))
+        self.parts = parts
+
+    def __str__(self):
+        string = GraphiteMetric.join(*self.parts)
+        string = GraphiteMetric.normalize(string)
+        string = GraphiteMetric.rewrite(string)
+        return string
 
     @staticmethod
     def join(*args):
@@ -178,7 +207,10 @@ class GraphiteMetric(object):
         cls.rewrite_rules.append(rule)
 
     @classmethod
-    def rewrite(self, str):
-        for r in self.rewrite_rules:
-            str = r.apply(str)
-        return str
+    def rewrite(cls, metric):
+        logging.info('Input String %s', metric)
+        logging.info('Applying %d transformations', len(cls.rewrite_rules))
+        for r in cls.rewrite_rules:
+            metric = r.apply(metric)
+        logging.info('Output String %s', metric)
+        return metric
