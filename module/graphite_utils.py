@@ -10,16 +10,25 @@ import urlparse
 # encapsulate graph styles
 # TODO - Add additional properties (fgColor, bgColor, unitsystem) (should these be in Style or URL??)
 class GraphStyle(object):
-    def __init__(self, width=586, height=308, font_size=8, line_style=None):
+    def __init__(self, width=586, height=308, font_size=8, line_style=None,foreground=None,background=None,area_mode=None):
         self.width = int(width)
         self.height = int(height)
         self.font_size = int(font_size)
         self.line_style = line_style
+        self.foreground=foreground
+        self.background=background
+        self.area_mode=area_mode
 
     def __str__(self):
         s = 'width={0.width}&height={0.height}&fontSize={0.font_size}'
         if self.line_style is not None:
             s += '&lineMode={0.line_style}'
+        if self.foreground is not None:
+            s += '&fgcolor={0.foreground}'
+        if self.background is not None:
+            s += '&bgcolor={0.background}'
+        if self.area_mode is not None:
+            s += '&areaMode={0.area_mode}'
         return s.format(self)
 
 
@@ -200,6 +209,9 @@ class GraphiteURL(object):
         obj.style.height = query_param('height', obj.style.height)
         obj.style.font_size = query_param('fontSize', obj.style.font_size)
         obj.style.line_style = query_param('lineMode', obj.style.line_style)
+        obj.style.foreground = query_param('fgcolor', obj.style.foreground)
+        obj.style.background = query_param('bgcolor', obj.style.background)
+        obj.style.area_mode = query_param('areaMode', obj.style.area_mode)
         # url params
         obj.start = query_param('from', None)
         obj.end = query_param('until', None)
