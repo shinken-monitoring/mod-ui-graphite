@@ -49,6 +49,7 @@ class GraphiteFunction(object):
         self.args = args
 
     def __str__(self):
+        logging.debug('Generating Sting for function %s', self.name)
         return '{0.name}({1})'.format(self, ','.join([str(x) for x in self.args]))
 
 
@@ -89,8 +90,12 @@ class GraphiteTarget(object):
         return s
 
     @classmethod
-    def from_string(cls, target='', **kwargs):
+    def from_string(self, target='', ):
+        if not isinstance(target, basestring):
+            return target
+
         def parse_graphite_args(part):
+            logging.debug('Parsing args %s', part)
             open_brackets = 0
             s = ''
             for c in part:
@@ -106,10 +111,13 @@ class GraphiteTarget(object):
             yield s
 
         def parse_graphite_part(part):
+            logging.debug('Parsing %s', part)
             ndx = part.find('(')
             if ndx < 0:
+                logging.debug('No function call')
                 if part[0] == '"' and part[-1] == '"':
-                    return GraphiteString(part[1:-1])
+                    logging.debug('Returning Graphite String')
+                    return GraphiteString(part)
                 try:
                     return int(part)
                 except ValueError:
@@ -118,13 +126,13 @@ class GraphiteTarget(object):
                     return float(part)
                 except ValueError:
                     pass
+                logging.debug('Returning Graphite metric %s', part)
                 return GraphiteMetric(part)
             fn = part[:ndx]
-            args = [parse_graphite_part(x) for x in parse_graphite_args(part[ndx:])]
-            return GraphiteFunction(fn, args)
+            logging.debug('Function : %s Arguments : %s', part[:ndx], part[ndx + 1:])
+            return GraphiteFunction(fn, [parse_graphite_part(x) for x in parse_graphite_args(part[ndx + 1:-1])])
 
-        obj = cls(target=parse_graphite_part(target), **kwargs)
-        return obj
+        return parse_graphite_part(target)
 
 
 # programmatic representation of a graphite URL
@@ -296,9 +304,9 @@ class GraphiteMetric(object):
 
     @classmethod
     def rewrite(cls, metric):
-        logging.info('Input String %s', metric)
-        logging.info('Applying %d transformations', len(cls.rewrite_rules))
+        logging.debug('Input String %s', metric)
+        logging.debug('Applying %d transformations', len(cls.rewrite_rules))
         for r in cls.rewrite_rules:
             metric = r.apply(metric)
-        logging.info('Output String %s', metric)
+        logging.debug('Output String %s', metric)
         return metric
