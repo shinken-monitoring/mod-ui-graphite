@@ -1,6 +1,5 @@
 # Graphite utilities for generating graphs
 
-# generate a graphite compatible time from a unix timestamp, if the value provided is not a valid timestamp, assume that we have a compatible time
 
 from datetime import datetime
 import re
@@ -25,6 +24,8 @@ class GraphStyle(object):
 
 
 # TODO - Determine how to handle relative times (negative values as offset from now?)
+# generate a graphite compatible time from a unix timestamp, if the value provided is not a valid
+# timestamp, assume that we have a compatible time
 def graphite_time(timestamp):
     try:
         timestamp = int(timestamp)
@@ -118,7 +119,7 @@ class GraphiteTarget(object):
 
 
 # programmatic representation of a graphite URL
-#TODO - Add additional properties (fgColor, bgColor, unitsystem)
+# TODO - Add additional properties (fgColor, bgColor, unitSystem)
 class GraphiteURL(object):
     def __init__(self, server='', title='', style=GraphStyle(), start=0, end=0, min=None, max=None, targets=None,
                  **kwargs):
