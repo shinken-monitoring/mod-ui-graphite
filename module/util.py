@@ -142,14 +142,14 @@ class GraphFactory(object):
             self.logger.debug("[Graphite UI] metric: %s", metric)
             title = '%s/%s - %s' % (self.hostname, self.servicename, metric['name'])
             graph = GraphiteURL(server=self.cfg.uri, title=title, style=self.style, start=self.graph_start,
-                                end=self.graph_end, lineMode=self.cfg.lineMode, tz=self.cfg.tz)
+                                end=self.graph_end, tz=self.cfg.tz)
 
             # Graph main series
             graphite_metric = GraphiteMetric(self.prefix, self.hostname, self.cfg.graphite_data_source,
                                              self.servicename, metric['name'], self.postfix)
             graph.add_target(graphite_metric, alias=metric['name'], color='green')
 
-            # TODO - Shinken appears to store these in graphite, rather than using the current value as a constant line,
+            #TODO - Shinken appears to store these in graphite, rather than using the current value as a constant line,
             #TODO - use the approppriate time series from graphite
             #NOTE - the Graphite module allows the filtering of constant metrics to avoid storing warn, crit, ... in Graphite!
             #NOTE - constantLine function is much appropriate in this case.

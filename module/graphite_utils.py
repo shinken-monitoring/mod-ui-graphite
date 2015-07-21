@@ -157,9 +157,6 @@ class GraphiteURL(object):
         self.max = max
         self.min = min
         self._targets = ''
-        self.lineMode = None
-        if 'lineMode' in kwargs:
-            self.lineMode = kwargs['lineMode']
         self.tz = None
         if 'tz' in kwargs:
             self.tz = kwargs['tz']
@@ -244,8 +241,6 @@ class GraphiteURL(object):
             s += '&from={0.start}'
         if self.end:
             s += '&until={0.end}'
-        if self.lineMode:
-            s += '&lineMode={0.lineMode}'
         if self.tz:
             s += '&tz={0.tz}'
         if self.title:

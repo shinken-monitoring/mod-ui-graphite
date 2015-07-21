@@ -110,8 +110,6 @@ class Graphite_Webui(BaseModule):
             logger.info("[Graphite UI] Configuration - %s metrics: %s", n, getattr(self, n))
 
         # Graphs parameters
-        self.lineMode = getattr(modconf, 'lineMode', 'connected')
-        logger.info("[Graphite UI] Configuration - Graphite line mode: %s", self.lineMode)
         self.tz = getattr(modconf, 'tz', 'Europe/Paris')
         logger.info("[Graphite UI] Configuration - Graphite time zone: %s", self.tz)
 
@@ -134,17 +132,19 @@ class Graphite_Webui(BaseModule):
         self._uri = uri
 
     def _load_styles(self, modconf):
+        lineMode = getattr(modconf, 'lineMode', 'connected')
+
         # Specify font and picture size for dashboard widget
         font = getattr(modconf, 'dashboard_view_font', '8')
         width = getattr(modconf, 'dashboard_view_width', '320')
         height = getattr(modconf, 'dashboard_view_height', '240')
-        self.styles['dashboard'] = GraphStyle(width=width, height=height, font_size=font)
+        self.styles['dashboard'] = GraphStyle(width=width, height=height, font_size=font,line_style=lineMode)
 
         # Specify font and picture size for element view
         font = getattr(modconf, 'detail_view_font', '8')
         width = getattr(modconf, 'detail_view_width', '586')
         height = getattr(modconf, 'detail_view_height', '308')
-        self.styles['detail'] = GraphStyle(width=width, height=height, font_size=font)
+        self.styles['detail'] = GraphStyle(width=width, height=height, font_size=font,line_style=lineMode)
 
     # Try to connect if we got true parameter
     def init(self):
