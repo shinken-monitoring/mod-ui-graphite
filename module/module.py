@@ -70,11 +70,12 @@ class Graphite_Webui(BaseModule):
 
         self.rewrite_rules = getattr(modconf, 'graphite_rewrite_rule', '')
         for r in self.rewrite_rules:
+            logger.info("[Graphite UI] Configuration - rewrite rule: %s", r)
             try:
                 rule, sub = r.split('=', 1)
             except ValueError:
-                logger.warning('Unable to split "%s" into a rule an a substitution'.r)
-                logger.warning('Expected rule in format "rule=substitution"')
+                logger.warning('[Graphite UI] Unable to split "%s" into a rule an a substitution'.r)
+                logger.warning('[Graphite UI] Expected rule in format "rule=substitution"')
                 continue
             GraphiteMetric.add_rule(rule.strip(), sub.strip())
 
