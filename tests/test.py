@@ -15,7 +15,7 @@ sys.path.append(ROOT_PATH)
 
 from module.util import JSONTemplate, GraphFactory, TemplateNotFound
 from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, GraphiteMetric, graphite_time, \
-    GraphiteRewriteRule
+    GraphiteRewriteRule, GraphiteFunction, GraphiteString
 from fake_shinken import Host, CheckCommand, Service, ShinkenModuleConfig
 
 
@@ -307,6 +307,62 @@ class TestJSONTemplate(unittest.TestCase):
         self.assertEqual(d, self.filled)
         self.assertEqual(template.data, self.data)
         self.assertNotEqual(d, template.data)
+
+
+class TestGraphiteString(unittest.TestCase):
+    def test_unquoted_string(self):
+        s = GraphiteString('abc')
+        self.assertEqual(s.s, 'abc')
+        self.assertEqual(str(s), '"abc"')
+
+    def test_quoted_string(self):
+        s = GraphiteString('"abc"')
+        self.assertEqual(s.s, 'abc')
+        self.assertEqual(str(s), '"abc"')
+
+
+class TestGraphiteFunction(unittest.TestCase):
+    def test_simple_fn(self):
+        s = GraphiteFunction('average', ['abc', ])
+        self.assertEqual(s.name, 'average')
+        self.assertEqual(s.args, ['abc', ])
+        self.assertEqual(str(s), 'average(abc)')
+
+    def test_string_fn(self):
+        t = GraphiteString('abc')
+        s = GraphiteFunction('findMetrics', [t, ])
+        self.assertEqual(s.name, 'findMetrics')
+        self.assertEqual(len(s.args), 1)
+        self.assertEqual(s.args[0].s, 'abc')
+        self.assertEqual(str(s), 'findMetrics("abc")')
+
+    def test_numeric_fn(self):
+        s = GraphiteFunction('average', [10, ])
+        self.assertEqual(s.name, 'average')
+        self.assertEqual(s.args, [10, ])
+        self.assertEqual(str(s), 'average(10)')
+
+    def test_mixed_fn(self):
+        t = GraphiteString('test')
+        s = GraphiteFunction('average', ['abc', 10, t])
+        self.assertEqual(s.name, 'average')
+        self.assertEqual(len(s.args), 3)
+        self.assertEqual(s.args, ['abc', 10, t])
+        self.assertEqual(str(s), 'average(abc,10,"test")')
+
+    def test_nested_fn(self):
+        t = GraphiteString('test')
+        f = GraphiteString('Fred')
+        s = GraphiteFunction('average', ['abc', 10, t])
+        s2 = GraphiteFunction('alias', [s, f])
+        self.assertEqual(s.name, 'average')
+        self.assertEqual(len(s.args), 3)
+        self.assertEqual(s.args, ['abc', 10, t])
+        self.assertEqual(str(s), 'average(abc,10,"test")')
+        self.assertEqual(s2.name, 'alias')
+        self.assertEqual(len(s2.args), 2)
+        self.assertEqual(s2.args, [s, f])
+        self.assertEqual(str(s2), 'alias(average(abc,10,"test"),"Fred")')
 
 
 class TestGraphiteRewrite(unittest.TestCase):
