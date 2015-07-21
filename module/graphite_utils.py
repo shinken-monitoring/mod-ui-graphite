@@ -5,6 +5,7 @@
 from datetime import datetime
 import re
 import logging
+import urlparse
 
 
 # encapsulate graph styles
@@ -179,13 +180,49 @@ class GraphiteURL(object):
             raise
 
     @classmethod
-    def parse(cls, string):
-        pass
+    def parse(cls, string, style=GraphStyle()):
+        parts = urlparse.urlparse(string)
+        query = urlparse.parse_qs(parts.query)
+
+        def query_param(key, default=None):
+            r = default
+            try:
+                r = query[key][0]
+                del query[key]
+            except AttributeError:
+                pass
+            return r
+
+        obj = cls(style=style)
+        # style
+        obj.style.width = query_param('width', obj.style.width)
+        obj.style.height = query_param('height', obj.style.height)
+        obj.style.font_size = query_param('fontSize', obj.style.font_size)
+        obj.style.line_style = query_param('lineMode', obj.style.line_style)
+        # url params
+        obj.start = query_param('from', None)
+        obj.end = query_param('until', None)
+        obj.tz = query_param('tz', None)
+        obj.title = query_param('title', None)
+        obj.min = query_param('yMin', None)
+        obj.max = query_param('yMax', None)
+        # targets
+        for t in query['target']:
+            obj.add_target(GraphiteTarget.from_string(t))
+        del query['target']
+        # extras
+        for k, v in query.items():
+            logging.warn('unrecognized parameter "%s" : %r', k, v)
+        return obj
 
     def url(self, module='render'):
         if module not in ('render', 'composer'):
             raise ValueError('module must be "render" or "composer" not "%s"' % module)
-        s = '{0.server}{1}/?{0.style}&from={0.start}&until={0.end}'
+        s = '{0.server}{1}/?{0.style}'
+        if self.start:
+            s += '&from={0.start}'
+        if self.end:
+            s += '&until={0.end}'
         if self.lineMode:
             s += '&lineMode={0.lineMode}'
         if self.tz:
