@@ -77,6 +77,44 @@ class GraphiteTarget(object):
             s = 'alias(%s,"%s")' % (s, self.alias)
         return s
 
+    @classmethod
+    def from_string(cls, target='', **kwargs):
+        def parse_graphite_args(part):
+            open_brackets = 0
+            s = ''
+            for c in part:
+                if c == ',' and not open_brackets:
+                    yield s
+                    s = ''
+                else:
+                    if c == '(':
+                        open_brackets += 1
+                    elif c == ')':
+                        open_brackets -= 1
+                    s += c
+            yield s
+
+        def parse_graphite_part(part):
+            ndx = part.find('(')
+            if ndx < 0:
+                if part[0] == '"' and part[-1] == '"':
+                    return GraphiteString(part[1:-1])
+                try:
+                    return int(part)
+                except ValueError:
+                    pass
+                try:
+                    return float(part)
+                except ValueError:
+                    pass
+                return GraphiteMetric(part)
+            fn = part[:ndx]
+            args = [parse_graphite_part(x) for x in parse_graphite_args(part[ndx:])]
+            return GraphiteFunction(fn, args)
+
+        obj = cls(target=parse_graphite_part(target), **kwargs)
+        return obj
+
 
 # programmatic representation of a graphite URL
 #TODO - Add additional properties (fgColor, bgColor, unitsystem)
