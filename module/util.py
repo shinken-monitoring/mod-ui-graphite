@@ -2,7 +2,6 @@ __author__ = 'bjorn'
 
 import logging
 import os
-import re
 from string import Template
 import json
 
@@ -16,7 +15,7 @@ class TemplateNotFound(BaseException):
     pass
 
 
-#TODO - Implement relative offsets to allow graphs that start some period of time ago and end now
+# TODO - Implement relative offsets to allow graphs that start some period of time ago and end now
 class GraphFactory(object):
     def __init__(self, element, graph_start, graph_end, source='detail', log=logger, cfg=None):
         if log is None:
@@ -146,17 +145,15 @@ class GraphFactory(object):
                                 end=self.graph_end, lineMode=self.cfg.lineMode, tz=self.cfg.tz)
 
             # Graph main series
-            graphite_metric = GraphiteMetric.join(self.prefix, self.hostname,
-                                                  self.cfg.graphite_data_source,
-                                                  self.servicename, metric['name'], self.postfix)
-            graphite_metric = GraphiteMetric.normalize(graphite_metric)
+            graphite_metric = GraphiteMetric(self.prefix, self.hostname, self.cfg.graphite_data_source,
+                                             self.servicename, metric['name'], self.postfix)
             graph.add_target(graphite_metric, alias=metric['name'], color='green')
 
-            #TODO - Shinken appears to store these in graphite, rather than using the current value as a constant line,
+            # TODO - Shinken appears to store these in graphite, rather than using the current value as a constant line,
             #TODO - use the approppriate time series from graphite
             #NOTE - the Graphite module allows the filtering of constant metrics to avoid storing warn, crit, ... in Graphite!
             #NOTE - constantLine function is much appropriate in this case.
-            colors = {'warning': 'orange', 'critical': 'red', 'min':'blue', 'max':'black'}
+            colors = {'warning': 'orange', 'critical': 'red', 'min': 'blue', 'max': 'black'}
             for t in ('warning', 'critical', 'min', 'max'):
                 if t in metric:
                     n = 'color_%s' % t
@@ -222,26 +219,13 @@ class GraphFactory(object):
             service=GraphiteMetric.normalize(GraphiteMetric.join(self.servicename, self.postfix))
         )
 
-        # Private function to replace the fontsize uri parameter by the correct value
-        # or add it if not present.
-        def _replace_font_size(url):
-            # Do we have fontSize in the url already, or not ?
-            if re.search('fontSize=', url) is None:
-                url = url + '&fontSize=%d' % self.style.font_size
-            else:
-                url = re.sub(r'(fontSize=)[^&]+', r'\g<1>' + self.style.font_size, url)
-            return url
 
         # Split, we may have several images.
         for img in html.substitute(context).split('\n'):
-            if not img == "":
-                link = _replace_font_size(img.replace('"', "'") + "&from=" + graph_start + "&until=" + graph_end)
-
-                v = dict(
-                    link=link.replace('/render/', '/compose/'),
-                    img_src=link
-                )
-                uris.append(v)
+            if not img:
+                continue
+            graph = GraphiteURL.parse(img, style=self.style)
+            uris.append(dict(link=graph.url('render'), img_src=graph.url('composer')))
         return uris
 
 
