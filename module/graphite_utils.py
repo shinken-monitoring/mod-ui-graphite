@@ -39,7 +39,7 @@ def graphite_time(timestamp):
     try:
         timestamp = int(timestamp)
         return datetime.fromtimestamp(timestamp).strftime('%H:%M_%Y%m%d')
-    except ValueError:
+    except (TypeError,ValueError):
         return timestamp
 
 
@@ -77,12 +77,12 @@ class GraphiteTarget(object):
         elif isinstance(target, dict):
             self.__init__(**target)
         else:
-            self.target = target
+            self.target = self.from_string(target)
             self.alias = alias
             self.color = color
 
     def __str__(self):
-        s = self.target
+        s = str(self.target)
         if self.color:
             s = 'color(%s,"%s")' % (s, self.color)
         if self.alias:
@@ -207,7 +207,7 @@ class GraphiteURL(object):
             try:
                 r = query[key][0]
                 del query[key]
-            except AttributeError:
+            except (KeyError, IndexError):
                 pass
             return r
 
