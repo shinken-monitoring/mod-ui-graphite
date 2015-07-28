@@ -10,14 +10,15 @@ import urlparse
 # encapsulate graph styles
 # TODO - Add additional properties (fgColor, bgColor, unitsystem) (should these be in Style or URL??)
 class GraphStyle(object):
-    def __init__(self, width=586, height=308, font_size=8, line_style=None,foreground=None,background=None,area_mode=None):
+    def __init__(self, width=586, height=308, font_size=8, line_style=None, foreground=None, background=None,
+                 area_mode=None):
         self.width = int(width)
         self.height = int(height)
         self.font_size = int(font_size)
         self.line_style = line_style
-        self.foreground=foreground
-        self.background=background
-        self.area_mode=area_mode
+        self.foreground = foreground
+        self.background = background
+        self.area_mode = area_mode
 
     def __str__(self):
         s = 'width={0.width}&height={0.height}&fontSize={0.font_size}'
@@ -39,7 +40,7 @@ def graphite_time(timestamp):
     try:
         timestamp = int(timestamp)
         return datetime.fromtimestamp(timestamp).strftime('%H:%M_%Y%m%d')
-    except (TypeError,ValueError):
+    except (TypeError, ValueError):
         return timestamp
 
 
