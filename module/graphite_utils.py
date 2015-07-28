@@ -142,6 +142,8 @@ class GraphiteURL(object):
                  **kwargs):
         self._start = ''
         self._end = ''
+        if server.endswith('/'):
+            server=server[:-1]
         self.server = server
         self.start = start
         self.end = end
@@ -208,7 +210,12 @@ class GraphiteURL(object):
                 pass
             return r
 
-        obj = cls(style=style)
+        server = '{0.scheme}://{0.hostname}'.format(parts)
+        if parts.port:
+            server += ':%d' % parts.port
+        server += '/'
+
+        obj = cls(style=style, server=server)
         # style
         obj.style.width = query_param('width', obj.style.width)
         obj.style.height = query_param('height', obj.style.height)
@@ -236,7 +243,7 @@ class GraphiteURL(object):
     def url(self, module='render'):
         if module not in ('render', 'composer'):
             raise ValueError('module must be "render" or "composer" not "%s"' % module)
-        s = '{0.server}{1}/?{0.style}'
+        s = '{0.server}/{1}/?{0.style}'
         if self.start:
             s += '&from={0.start}'
         if self.end:
