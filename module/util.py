@@ -225,7 +225,7 @@ class GraphFactory(object):
             if not img:
                 continue
             graph = GraphiteURL.parse(img, style=self.style)
-            uris.append(dict(link=graph.url('render'), img_src=graph.url('composer')))
+            uris.append(dict(link=graph.url('composer'), img_src=graph.url('render')))
         return uris
 
 
