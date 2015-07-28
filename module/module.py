@@ -31,7 +31,7 @@ for mainly get graphs and links.
 import re
 import socket
 
-from .graphite_utils import GraphStyle
+from .graphite_utils import GraphStyle, GraphiteMetric
 from .util import GraphFactory
 from shinken.log import logger
 from shinken.basemodule import BaseModule
@@ -68,6 +68,17 @@ class Graphite_Webui(BaseModule):
         self.uri = getattr(modconf, 'uri', '')
         logger.info("[Graphite UI] Configuration - uri: %s", self.uri)
 
+        self.rewrite_rules = getattr(modconf, 'graphite_rewrite_rule', '')
+        for r in self.rewrite_rules:
+            logger.info("[Graphite UI] Configuration - rewrite rule: %s", r)
+            try:
+                rule, sub = r.split('=', 1)
+            except ValueError:
+                logger.warning('[Graphite UI] Unable to split "%s" into a rule an a substitution'.r)
+                logger.warning('[Graphite UI] Expected rule in format "rule=substitution"')
+                continue
+            GraphiteMetric.add_rule(rule.strip(), sub.strip())
+
         self.templates_path = getattr(modconf, 'templates_path', '/tmp')
         logger.info("[Graphite UI] Configuration - templates path: %s", self.templates_path)
 
@@ -99,8 +110,6 @@ class Graphite_Webui(BaseModule):
             logger.info("[Graphite UI] Configuration - %s metrics: %s", n, getattr(self, n))
 
         # Graphs parameters
-        self.lineMode = getattr(modconf, 'lineMode', 'connected')
-        logger.info("[Graphite UI] Configuration - Graphite line mode: %s", self.lineMode)
         self.tz = getattr(modconf, 'tz', 'Europe/Paris')
         logger.info("[Graphite UI] Configuration - Graphite time zone: %s", self.tz)
 
@@ -123,17 +132,19 @@ class Graphite_Webui(BaseModule):
         self._uri = uri
 
     def _load_styles(self, modconf):
+        lineMode = getattr(modconf, 'lineMode', 'connected')
+
         # Specify font and picture size for dashboard widget
         font = getattr(modconf, 'dashboard_view_font', '8')
         width = getattr(modconf, 'dashboard_view_width', '320')
         height = getattr(modconf, 'dashboard_view_height', '240')
-        self.styles['dashboard'] = GraphStyle(width=width, height=height, font_size=font)
+        self.styles['dashboard'] = GraphStyle(width=width, height=height, font_size=font,line_style=lineMode)
 
         # Specify font and picture size for element view
         font = getattr(modconf, 'detail_view_font', '8')
         width = getattr(modconf, 'detail_view_width', '586')
         height = getattr(modconf, 'detail_view_height', '308')
-        self.styles['detail'] = GraphStyle(width=width, height=height, font_size=font)
+        self.styles['detail'] = GraphStyle(width=width, height=height, font_size=font,line_style=lineMode)
 
     # Try to connect if we got true parameter
     def init(self):

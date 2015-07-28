@@ -14,7 +14,8 @@ ROOT_PATH = os.path.abspath(os.path.join(FILE_PATH, '../'))
 sys.path.append(ROOT_PATH)
 
 from module.util import JSONTemplate, GraphFactory, TemplateNotFound
-from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, GraphiteMetric, graphite_time
+from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, GraphiteMetric, graphite_time, \
+    GraphiteRewriteRule, GraphiteFunction, GraphiteString
 from fake_shinken import Host, CheckCommand, Service, ShinkenModuleConfig
 
 
@@ -37,21 +38,21 @@ class TestGraphiteTarget(unittest.TestCase):
 
     def test_alias_and_color(self):
         t = GraphiteTarget(target='test', alias='test', color='red')
-        self.assertEqual(str(t), 'color(alias(test,"test"),"red")')
+        self.assertEqual(str(t), 'alias(color(test,"red"),"test")')
 
     def test_target_from_target(self):
         t1 = GraphiteTarget(target='test', alias='test', color='red')
         t = GraphiteTarget(t1)
         self.assertEqual(t1.__dict__, t.__dict__)
-        self.assertEqual(str(t1), 'color(alias(test,"test"),"red")')
-        self.assertEqual(str(t), 'color(alias(test,"test"),"red")')
+        self.assertEqual(str(t1), 'alias(color(test,"red"),"test")')
+        self.assertEqual(str(t), 'alias(color(test,"red"),"test")')
 
     def test_target_from_target_mod(self):
         t1 = GraphiteTarget(target='test', alias='test', color='red')
         t = GraphiteTarget(t1, alias='Fred', color='yellow')
         self.assertNotEqual(t1.__dict__, t.__dict__)
-        self.assertEqual(str(t1), 'color(alias(test,"test"),"red")')
-        self.assertEqual(str(t), 'color(alias(test,"Fred"),"yellow")')
+        self.assertEqual(str(t1), 'alias(color(test,"red"),"test")')
+        self.assertEqual(str(t), 'alias(color(test,"yellow"),"Fred")')
 
 
 class TestGraphiteURL(unittest.TestCase):
@@ -61,9 +62,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -85,9 +86,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -97,9 +98,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -112,9 +113,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -127,9 +128,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -144,9 +145,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -308,6 +309,107 @@ class TestJSONTemplate(unittest.TestCase):
         self.assertNotEqual(d, template.data)
 
 
+class TestGraphiteString(unittest.TestCase):
+    def test_unquoted_string(self):
+        s = GraphiteString('abc')
+        self.assertEqual(s.s, 'abc')
+        self.assertEqual(str(s), '"abc"')
+
+    def test_quoted_string(self):
+        s = GraphiteString('"abc"')
+        self.assertEqual(s.s, 'abc')
+        self.assertEqual(str(s), '"abc"')
+
+
+class TestGraphiteFunction(unittest.TestCase):
+    def test_simple_fn(self):
+        s = GraphiteFunction('average', ['abc', ])
+        self.assertEqual(s.name, 'average')
+        self.assertEqual(s.args, ['abc', ])
+        self.assertEqual(str(s), 'average(abc)')
+
+    def test_string_fn(self):
+        t = GraphiteString('abc')
+        s = GraphiteFunction('findMetrics', [t, ])
+        self.assertEqual(s.name, 'findMetrics')
+        self.assertEqual(len(s.args), 1)
+        self.assertEqual(s.args[0].s, 'abc')
+        self.assertEqual(str(s), 'findMetrics("abc")')
+
+    def test_numeric_fn(self):
+        s = GraphiteFunction('average', [10, ])
+        self.assertEqual(s.name, 'average')
+        self.assertEqual(s.args, [10, ])
+        self.assertEqual(str(s), 'average(10)')
+
+    def test_mixed_fn(self):
+        t = GraphiteString('test')
+        s = GraphiteFunction('average', ['abc', 10, t])
+        self.assertEqual(s.name, 'average')
+        self.assertEqual(len(s.args), 3)
+        self.assertEqual(s.args, ['abc', 10, t])
+        self.assertEqual(str(s), 'average(abc,10,"test")')
+
+    def test_nested_fn(self):
+        t = GraphiteString('test')
+        f = GraphiteString('Fred')
+        s = GraphiteFunction('average', ['abc', 10, t])
+        s2 = GraphiteFunction('alias', [s, f])
+        self.assertEqual(s.name, 'average')
+        self.assertEqual(len(s.args), 3)
+        self.assertEqual(s.args, ['abc', 10, t])
+        self.assertEqual(str(s), 'average(abc,10,"test")')
+        self.assertEqual(s2.name, 'alias')
+        self.assertEqual(len(s2.args), 2)
+        self.assertEqual(s2.args, [s, f])
+        self.assertEqual(str(s2), 'alias(average(abc,10,"test"),"Fred")')
+
+
+class TestGraphiteRewrite(unittest.TestCase):
+    def setUp(self):
+        GraphiteMetric.rewrite_rules = []
+
+    def test_simple_rewrite(self):
+        rule = GraphiteRewriteRule(r'_sum$', '')
+        base = 'abcdef'
+        r = rule.apply(base)
+        self.assertEqual(r, base)
+        r = rule.apply('_sum' + base)
+        self.assertEqual(r, '_sum' + base)
+        r = rule.apply(base + '_sum')
+        self.assertEqual(r, base)
+
+    def test_metric_single_rewrite(self):
+        self.assertEqual(len(GraphiteMetric.rewrite_rules), 0)
+        GraphiteMetric.add_rule('_sum$', '')
+        self.assertEqual(len(GraphiteMetric.rewrite_rules), 1)
+        base = 'abcdef'
+        r = GraphiteMetric.rewrite(base)
+        self.assertEqual(r, base)
+        r = GraphiteMetric.rewrite('_sum' + base)
+        self.assertEqual(r, '_sum' + base)
+        r = GraphiteMetric.rewrite(base + '_sum')
+        self.assertEqual(r, base)
+
+    def test_metric_multi_rewrite(self):
+        self.assertEqual(len(GraphiteMetric.rewrite_rules), 0)
+        GraphiteMetric.add_rule('_sum$', '')
+        GraphiteMetric.add_rule(r'^(world)', r'hello.\1')
+        self.assertEqual(len(GraphiteMetric.rewrite_rules), 2)
+        base = 'abcdef'
+        r = GraphiteMetric.rewrite(base)
+        self.assertEqual(r, base)
+        r = GraphiteMetric.rewrite('_sum' + base)
+        self.assertEqual(r, '_sum' + base)
+        r = GraphiteMetric.rewrite('world' + base)
+        self.assertEqual(r, 'hello.world' + base)
+        r = GraphiteMetric.rewrite(base + '_sum')
+        self.assertEqual(r, base)
+        r = GraphiteMetric.rewrite('world' + base + '_sum')
+        self.assertEqual(r, 'hello.world' + base)
+        pass
+
+
 class TestGraphFactory(unittest.TestCase):
     def setUp(self):
         self.maxDiff = None
@@ -318,6 +420,13 @@ class TestGraphFactory(unittest.TestCase):
         self.config.set_value('templates_path', os.path.join(ROOT_PATH, 'templates', 'graphite'))
         self.config.set_value('hostcheck', '__HOST__')
         self.config.set_value('uri', 'http://example.com/')
+        self.config.set_value('tz', None)
+        self.config.set_value('lineMode', None)
+        self.config.set_value('color_warning', None)
+        self.config.set_value('color_critical', None)
+        self.config.set_value('color_min', None)
+        self.config.set_value('color_max', None)
+        self.config.set_value('lineMode', None)
         self.config.set_value('graphite_data_source', '')
         self.config.set_value('get_metric_and_value', lambda x, y: [
             {'name': 'testMetric', 'uom': 'msec', 'min': 0, 'critical': 500, 'warning': 600}])
@@ -364,8 +473,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': '''http://example.com/compose/?width=586&height=308&_salt=1333718798.689&target=alias(legendValue(testhost.check_cpu.'user'%2C%22last%22)%2C%22User%22)&target=alias(legendValue(testhost.check_cpu.'sys'%2C%22last%22)%2C%22Sys%22)&target=alias(legendValue(testhost.check_cpu.'softirq'%2C%22last%22)%2C%22SoftIRQ%22)&target=alias(legendValue(testhost.check_cpu.'nice'%2C%22last%22)%2C%22Nice%22)&target=alias(legendValue(testhost.check_cpu.'irq'%2C%22last%22)%2C%22IRQ%22)&target=alias(legendValue(testhost.check_cpu.'iowait'%2C%22last%22)%2C%22I%2FO%20Wait%22)&target=alias(legendValue(testhost.check_cpu.'idle'%2C%22last%22)%2C%22Idle%22)&fgcolor=000000&bgcolor=FFFFFF)&areaMode=stacked&yMax=100&from=17:00_19691231&until=07:53_19700102&fontSize=8''',
-            'img_src': '''http://example.com/render/?width=586&height=308&_salt=1333718798.689&target=alias(legendValue(testhost.check_cpu.'user'%2C%22last%22)%2C%22User%22)&target=alias(legendValue(testhost.check_cpu.'sys'%2C%22last%22)%2C%22Sys%22)&target=alias(legendValue(testhost.check_cpu.'softirq'%2C%22last%22)%2C%22SoftIRQ%22)&target=alias(legendValue(testhost.check_cpu.'nice'%2C%22last%22)%2C%22Nice%22)&target=alias(legendValue(testhost.check_cpu.'irq'%2C%22last%22)%2C%22IRQ%22)&target=alias(legendValue(testhost.check_cpu.'iowait'%2C%22last%22)%2C%22I%2FO%20Wait%22)&target=alias(legendValue(testhost.check_cpu.'idle'%2C%22last%22)%2C%22Idle%22)&fgcolor=000000&bgcolor=FFFFFF)&areaMode=stacked&yMax=100&from=17:00_19691231&until=07:53_19700102&fontSize=8'''
+            'link': '''http://example.com/composer/?width=586&height=308&fontSize=8&fgcolor=000000&bgcolor=FFFFFF&areaMode=stacked&yMax=100&target=alias(legendValue(testhost.check_cpu._user_,"last"),"User")&target=alias(legendValue(testhost.check_cpu._sys_,"last"),"Sys")&target=alias(legendValue(testhost.check_cpu._softirq_,"last"),"SoftIRQ")&target=alias(legendValue(testhost.check_cpu._nice_,"last"),"Nice")&target=alias(legendValue(testhost.check_cpu._irq_,"last"),"IRQ")&target=alias(legendValue(testhost.check_cpu._iowait_,"last"),"I/O Wait")&target=alias(legendValue(testhost.check_cpu._idle_,"last"),"Idle")''',
+            'img_src': '''http://example.com/render/?width=586&height=308&fontSize=8&fgcolor=000000&bgcolor=FFFFFF&areaMode=stacked&yMax=100&target=alias(legendValue(testhost.check_cpu._user_,"last"),"User")&target=alias(legendValue(testhost.check_cpu._sys_,"last"),"Sys")&target=alias(legendValue(testhost.check_cpu._softirq_,"last"),"SoftIRQ")&target=alias(legendValue(testhost.check_cpu._nice_,"last"),"Nice")&target=alias(legendValue(testhost.check_cpu._irq_,"last"),"IRQ")&target=alias(legendValue(testhost.check_cpu._iowait_,"last"),"I/O Wait")&target=alias(legendValue(testhost.check_cpu._idle_,"last"),"Idle")'''
         })
 
     def test_service_generate(self):
@@ -382,8 +491,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(testhost.testservice.testMetric,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
-            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(testhost.testservice.testMetric,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
+            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
         })
 
     def test_service_generate_graphite_path_mods(self):
@@ -405,8 +514,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(frank.testhost.shinken.testservice.testMetric.FRED,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
-            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=color(alias(frank.testhost.shinken.testservice.testMetric.FRED,"testMetric"),"green")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+            'link': 'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
+            'img_src': 'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
         })
 
 
