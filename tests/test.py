@@ -62,9 +62,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -86,9 +86,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -98,9 +98,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -113,9 +113,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -128,9 +128,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -145,9 +145,9 @@ class TestGraphiteURL(unittest.TestCase):
         self.assertEqual(u._end, '17:00_19691231')
         self.assertEqual(u._start, '17:00_19691231')
         self.assertEqual(u.url('render'),
-                         'render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
+                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
         self.assertEqual(u.url('composer'),
-                         'composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
+                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -473,8 +473,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': '''http://example.com/compose/?width=586&height=308&_salt=1333718798.689&target=alias(legendValue(testhost.check_cpu.'user'%2C%22last%22)%2C%22User%22)&target=alias(legendValue(testhost.check_cpu.'sys'%2C%22last%22)%2C%22Sys%22)&target=alias(legendValue(testhost.check_cpu.'softirq'%2C%22last%22)%2C%22SoftIRQ%22)&target=alias(legendValue(testhost.check_cpu.'nice'%2C%22last%22)%2C%22Nice%22)&target=alias(legendValue(testhost.check_cpu.'irq'%2C%22last%22)%2C%22IRQ%22)&target=alias(legendValue(testhost.check_cpu.'iowait'%2C%22last%22)%2C%22I%2FO%20Wait%22)&target=alias(legendValue(testhost.check_cpu.'idle'%2C%22last%22)%2C%22Idle%22)&fgcolor=000000&bgcolor=FFFFFF)&areaMode=stacked&yMax=100&from=17:00_19691231&until=07:53_19700102&fontSize=8''',
-            'img_src': '''http://example.com/render/?width=586&height=308&_salt=1333718798.689&target=alias(legendValue(testhost.check_cpu.'user'%2C%22last%22)%2C%22User%22)&target=alias(legendValue(testhost.check_cpu.'sys'%2C%22last%22)%2C%22Sys%22)&target=alias(legendValue(testhost.check_cpu.'softirq'%2C%22last%22)%2C%22SoftIRQ%22)&target=alias(legendValue(testhost.check_cpu.'nice'%2C%22last%22)%2C%22Nice%22)&target=alias(legendValue(testhost.check_cpu.'irq'%2C%22last%22)%2C%22IRQ%22)&target=alias(legendValue(testhost.check_cpu.'iowait'%2C%22last%22)%2C%22I%2FO%20Wait%22)&target=alias(legendValue(testhost.check_cpu.'idle'%2C%22last%22)%2C%22Idle%22)&fgcolor=000000&bgcolor=FFFFFF)&areaMode=stacked&yMax=100&from=17:00_19691231&until=07:53_19700102&fontSize=8'''
+            'link': '''http://example.com/composer/?width=586&height=308&fontSize=8&fgcolor=000000&bgcolor=FFFFFF&areaMode=stacked&yMax=100&target=alias(legendValue(testhost.check_cpu._user_,"last"),"User")&target=alias(legendValue(testhost.check_cpu._sys_,"last"),"Sys")&target=alias(legendValue(testhost.check_cpu._softirq_,"last"),"SoftIRQ")&target=alias(legendValue(testhost.check_cpu._nice_,"last"),"Nice")&target=alias(legendValue(testhost.check_cpu._irq_,"last"),"IRQ")&target=alias(legendValue(testhost.check_cpu._iowait_,"last"),"I/O Wait")&target=alias(legendValue(testhost.check_cpu._idle_,"last"),"Idle")''',
+            'img_src': '''http://example.com/render/?width=586&height=308&fontSize=8&fgcolor=000000&bgcolor=FFFFFF&areaMode=stacked&yMax=100&target=alias(legendValue(testhost.check_cpu._user_,"last"),"User")&target=alias(legendValue(testhost.check_cpu._sys_,"last"),"Sys")&target=alias(legendValue(testhost.check_cpu._softirq_,"last"),"SoftIRQ")&target=alias(legendValue(testhost.check_cpu._nice_,"last"),"Nice")&target=alias(legendValue(testhost.check_cpu._irq_,"last"),"IRQ")&target=alias(legendValue(testhost.check_cpu._iowait_,"last"),"I/O Wait")&target=alias(legendValue(testhost.check_cpu._idle_,"last"),"Idle")'''
         })
 
     def test_service_generate(self):
