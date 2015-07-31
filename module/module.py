@@ -30,6 +30,7 @@ for mainly get graphs and links.
 
 import re
 import socket
+import time
 
 from .graphite_utils import GraphStyle, GraphiteMetric
 from .util import GraphFactory
@@ -198,7 +199,15 @@ class Graphite_Webui(BaseModule):
         logger.debug("[Graphite UI] get_metric_and_value: %s", result)
         return result
 
-    def get_graph_uris(self, element, graph_start, graph_end, source='detail'):
+    def get_relative_graph_uris(self, element, duration, source='detail'):
+        logger.debug("[Graphite UI] get_relative_graph_uris, duration: %d", duration)
+        graph_end = time.time()
+        graph_start = graph_end - duration
+        factory = GraphFactory(element, graph_start, graph_end, source, cfg=self, log=logger)
+        return factory.get_graph_uris()
+
+    def get_graph_uris(self, element, graph_start=None, graph_end=None, source='detail'):
+        logger.debug("[Graphite UI] get_graph_uris, start/end: %d/%d", graph_start, graph_end)
         factory = GraphFactory(element, graph_start, graph_end, source, cfg=self, log=logger)
         return factory.get_graph_uris()
 
