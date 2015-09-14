@@ -265,7 +265,7 @@ class Graphite_Webui(BaseModule):
                 v = {}
                 v['link'] = self.uri
                 v['img_src'] = uri
-                v['img_src'] = self._replaceFontSize(v['img_src'], fontsize[source])
+                v['img_src'] = self._replaceFontSize(v['img_src'], fontsize.get(source,10))
                 r.append(v)
             return r
 
