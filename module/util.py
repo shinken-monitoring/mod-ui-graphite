@@ -81,9 +81,9 @@ class GraphFactory(object):
     @property
     def hostname(self):
         try:
-            return self.element.host_name
+            return GraphiteMetric.normalize(self.element.host_name)
         except AttributeError:
-            return self.element.host.host_name
+            return GraphiteMetric.normalize(self.element.host.host_name)
 
     @property
     def element_type(self):
@@ -91,10 +91,10 @@ class GraphFactory(object):
 
     @property
     def servicename(self):
-        try:
-            return self.element.service_description
-        except:
-            return self.cfg.hostcheck
+        if self.element_type == 'service':
+            return GraphiteMetric.normalize(self.element.service_description)
+        else:
+            return GraphiteMetric.normalize(self.cfg.hostcheck)
 
     # retrieve a style with graceful fallback
     def get_style(self, name):

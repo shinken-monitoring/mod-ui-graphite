@@ -1,12 +1,12 @@
 #!/usr/bin/python
-
 # -*- coding: utf-8 -*-
 
 # Copyright (C) 2009-2012:
-# Gabes Jean, naparuba@gmail.com
-# Gerhard Lausser, Gerhard.Lausser@consol.de
-# Gregory Starck, g.starck@gmail.com
-# Hartmut Goebel, h.goebel@goebel-consult.de
+#    Gabes Jean, naparuba@gmail.com
+#    Gerhard Lausser, Gerhard.Lausser@consol.de
+#    Gregory Starck, g.starck@gmail.com
+#    Hartmut Goebel, h.goebel@goebel-consult.de
+#    Frederic Mohier, frederic.mohier@gmail.com
 #
 # This file is part of Shinken.
 #
@@ -105,7 +105,7 @@ class Graphite_Webui(BaseModule):
             n = 'use_%s' % s
             setattr(self, n, bool(getattr(modconf, n, True)))
             logger.info("[Graphite UI] Configuration - %s metrics: %d", n, getattr(self, n))
-            
+
             n = 'color_%s' % s
             setattr(self, n, getattr(modconf, n, 'black'))
             logger.info("[Graphite UI] Configuration - %s metrics: %s", n, getattr(self, n))
