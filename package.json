@@ -1,17 +1,21 @@
 {
-  "name": "ui-graphite",
+  "name": "ui-graphite2",
   "types": ["module"],
-  "version": "1.0.1",
-  "homepage": "http://github.com/shinken-monitoring/mod-ui-graphite",
+  "version": "2.1.0",
+  "homepage": "http://github.com/shinken-monitoring/mod-ui-graphite/tree/refactored",
   "author": "Jean Gabès",
-  "description": "Enable Graphite graphs inside the WebUI",
+  "description": "Enable Graphite graphs inside the WebUI - version 2",
   "contributors": [
     {
       "name": "Jean Gabès",
       "email": "naparuba@gmail.com"
+    },
+    {
+      "name": "Frédéric Mohier",
+      "email": "frederic.mohier@gmail.com"
     }
   ],
-  "repository": "https://github.com/shinken-monitoring/mod-ui-graphite",
+  "repository": "https://github.com/shinken-monitoring/mod-ui-graphite/tree/refactored",
   "keywords": [
     "module",
     "broker",
@@ -20,7 +24,7 @@
     "graphs"
   ],
   "dependencies": {
-    "shinken": ">=1.4"
+    "shinken": ">=2.4"
   },
   "license": "AGPL"
 }
