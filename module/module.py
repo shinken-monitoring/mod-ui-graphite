@@ -76,19 +76,6 @@ class Graphite_Webui(BaseModule):
         self.graphite_data_source = getattr(modconf, 'graphite_data_source', '')
         logger.info("[Graphite UI] Configuration - Graphite data source: %s", self.graphite_data_source)
 
-        # optional perfdatas to be filtered
-        self.filtered_metrics = {}
-        filters = getattr(modconf, 'filter', [])
-        for f in filters:
-            filtered_service, filtered_metric = f.split(':')
-            if filtered_service not in self.filtered_metrics:
-                self.filtered_metrics[filtered_service] = []
-            self.filtered_metrics[filtered_service].append(filtered_metric.split(','))
-
-        for service in self.filtered_metrics:
-            logger.info("[Graphite UI] Configuration - Filtered metric: %s - %s", service,
-                        self.filtered_metrics[service])
-
         # Use warning, critical, min, max
         for s in ('warning', 'critical', 'min', 'max'):
             n = 'use_%s' % s
