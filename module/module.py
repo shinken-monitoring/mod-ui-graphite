@@ -41,7 +41,7 @@ from shinken.misc.perfdata import PerfDatas
 
 properties = {
     'daemons': ['webui'],
-    'type': 'graphite_webui'
+    'type': 'graphite_webui2'
 }
 
 

@@ -144,7 +144,7 @@ class GraphiteURL(object):
         self._start = ''
         self._end = ''
         if server.endswith('/'):
-            server = server[:-1]
+            server=server[:-1]
         self.server = server
         self.start = start
         self.end = end
