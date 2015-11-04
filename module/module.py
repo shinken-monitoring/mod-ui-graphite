@@ -42,7 +42,7 @@ from shinken.misc.perfdata import PerfDatas
 
 properties = {
     'daemons': ['webui'],
-    'type': 'graphite_webui2'
+    'type': 'graphite_webui'
 }
 
 
@@ -149,11 +149,6 @@ class Graphite_Webui(BaseModule):
         multival = re.compile(r'_(\d+)$')
 
         for e in metrics:
-            if service in self.filtered_metrics:
-                if e.name in self.filtered_metrics[service]:
-                    logger.warning("[Graphite UI] Ignore metric '%s' for filtered service: %s", e.name, service)
-                    continue
-
             name = multival.sub(r'.\1', e.name)
 
             # bailout if no value
