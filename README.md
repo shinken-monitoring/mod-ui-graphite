@@ -1,17 +1,38 @@
-<a href='https://travis-ci.org/shinken-monitoring/mod-ui-graphite'><img src='https://api.travis-ci.org/shinken-monitoring/mod-ui-graphite.svg?branch=master' alt='Travis Build'></a>
-mod-ui-graphite
-===============
 
-Description
------------
-Shinken module for enabling graphs from Graphite into WebUI
+UI-Graphite2 module
+=====================
+
+Shinken module for viewing Graphite graphs in the Web UI, version 2
+
+This version is a refactoring of the previous ui-graphite module which allows:
+
+   - improve configuration features:
+      - define graph and font size for dashboard anf element page graphs
+      - allow to define if warning, critical, min and max thresholds are present on graphs
+      - allow to define warning, critical, min and max lines colors
+      - define graphs timezone (default is Europe/Paris)
+      - define graphs line mode (connected, staircase, slope)
+
+This module is fully compatible with the graphite2 broker module and with the WebUI2.
 
 Installation
-------------
-* `$ shinken install ui-graphite`
-* **clone** the this git repo and copy the **module.py** file to the **/var/lib/shinken/modules/ui-graphite** dir.(assuming you install shinken lib in default dir)
+--------------------------------
 
-Bugfix
-------------
-* fix the incompatible **metric name** derive process with the module graphite of shinken
-* fix the incompatible **_GRAPHITE_PRE** and **_GRAPHITE_POST** process with the module graphite of shinken
+   su - shinken
+
+   shinken install ui-graphite2
+
+Configuration
+--------------------------------
+
+
+   vi /etc/shinken/modules/webui2.cfg
+
+   => modules ui-graphite2
+
+Run
+--------------------------------
+
+   su -
+   /etc/init.d/shinken restart
+

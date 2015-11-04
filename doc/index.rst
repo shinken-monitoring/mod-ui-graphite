@@ -1,23 +1,21 @@
-.. _graphite_module:
+.. _ui_graphite_module:
 
 ===========================
-Graphite metrics
+UI Graphite graphs
 ===========================
 
-This module allows Shinken to send metrics to a Carbon/Graphite instance.
+Shinken module for viewing Graphite graphs in the Web UI, version 2
 
-This version is a refactoring of the previous graphite module which allows:
+This version is a refactoring of the previous ui-graphite module which allows:
 
-   - run as an external broker module
-   - do not manage metrics until initial hosts/services status are received (avoid to miss prefixes)
-   - remove pickle communication with Carbon (not very safe ...)
-   - maintain a cache for the packets not sent because of connection problems
    - improve configuration features:
-      - filter metrics warning and critical thresholds
-      - filter metrics min and max values
-      - filter service/metrics (avoid sending all metrics to Carbon)
-      - manage host _GRAPHITE_PRE and service _GRAPHITE_POST to build metric id
-      - manage host _GRAPHITE_GROUP as an extra hierarchy level for metrics (easier usage in metrics dashboard)
+      - define graph and font size for dashboard anf element page graphs
+      - allow to define if warning, critical, min and max thresholds are present on graphs
+      - allow to define warning, critical, min and max lines colors
+      - define graphs timezone (default is Europe/Paris)
+      - define graphs line mode (connected, staircase, slope)
+
+This module is fully compatible with the graphite2 broker module and with the WebUI2.
 
 Requirements
 -------------------------
@@ -28,14 +26,17 @@ None.
 Enabling module
 -------------------------
 
-To use the `graphite2` module you must declare it in your main broker configuration.
+To use the `ui-graphite2` module you must declare it in Web UI configuration.
 
 ::
 
-   define broker {
+   define module {
+      module_name         webui2
+      module_type         webui2
+
       ...
 
-      modules  ..., graphite2
+      modules  ui-graphite2
 
    }
 
@@ -47,28 +48,24 @@ The module configuration is defined in the file: ``graphite2.cfg``.
 
 Default configuration file is as is :
 ```
-   ## Module:      graphite
-   ## Loaded by:   Broker
-   # Export host and service performance data to Graphite carbon process.
-   # Graphite is a time series database with a rich web service interface, viewed
-   # as a modern alternative to RRDtool.  http://graphite.wikidot.com/start
+   ## Module:      ui-graphite2
+   ## Loaded by:   WebUI
+   # Use Graphite graphs in the WebUI, based on default or graphite URL API
+   # templates.
+   #
+   # IMPORTANT : Set the proper TIME_ZONE parameter in graphite : webapp/graphite/local_settings.py
+   # Set if to match the system setting.
+   # If not, 4h graphs will be broken.
    define module {
-      module_name     graphite2
-      module_type     graphite_perfdata
+      module_name             ui-graphite
+      module_type             graphite-webui2
 
-      # Graphite server / port to use
-      # default to localhost:2003
-      #host            localhost
-      #port            2003
+      uri                     http://YOURSERVERNAME/
+                              ; Set your Graphite URI. Note : YOURSERVERNAME will be
+                              ; changed by your broker hostname
 
-      # Cache management.
-      # Maximum cache size - number of packets stored in a queue
-      # When maximum length is reached, oldest packets are removed ...
-      #cache_max_length     1000
-
-      # Commit volume
-      # Maximum number of cached packets sent each time a received packet is sent when connection is restored
-      #cache_commit_volume     100
+      # Specify the path where to search for template files
+      templates_path          /var/lib/shinken/share/templates/graphite/
 
       # Optionally specify a source identifier for the metric data sent to Graphite.
       # This can help differentiate data from multiple sources for the same hosts.
@@ -78,19 +75,22 @@ Default configuration file is as is :
       # instead of:
       # host.service.metric
       #
-      # Note: You must set the same value in this module and in the Graphite UI module configuration.
+      # Note: You must set the same value in this module and in the Graphite module configuration.
       #
       # default: the variable is unset
       #graphite_data_source shinken
 
-      # Optionnaly specify a latency management
-      # If this parameter is enabled the metric time will be change to remove latency
-      # For example if the check was scheduled at 0 but was done at 2,
-      # the timestamp associated to the data will be 0
-      # Basically this ignore small latency in order to have regular interval between data.
-      # We skip an Graphite limitation that expect a specific timestamp range for data.
-      # default is to ignore latency
-      #ignore_latency_limit 15
+      # Graph configuration for dashboard widget
+      # Define font size and graph size for the dashboard widget
+      dashboard_view_font     8
+      dashboard_view_width    320
+      dashboard_view_height   240
+
+      # Graph configuration for element detail view
+      # Define font size and graph size for the elment graphs
+      detail_view_font        10
+      detail_view_width       786
+      detail_view_height      308
 
       # Optionnaly specify a service description for host check metrics
       #
@@ -99,27 +99,33 @@ Default configuration file is as is :
       # directory if it is specified.
       #
       # default: __HOST__
-      #hostcheck           __HOST__
-
-      # Optionnaly specify filtered metrics
-      # Filtered metrics will not be sent to Carbon/Graphite
-      #
-      # Declare a filter parameter for each service to be filtered:
-      # filter    service_description:metrics
-      #
-      # metrics is a comma separated list of the metrics to be filtered
-      # default: no filtered metrics
-      #filter           cpu:1m,5m
-      #filter           mem:3z
+      #hostcheck               __HOST__
 
       # Optionnaly specify extra metrics
-      # warning, critical, min and max information for the metrics are not often necessary
+      # warning, critical, min and max information for the metrics are sometimes not necessary
       # in Graphite
-      # You may specify which one are to be sent or not
-      # Default is not to send anything else than the metric value
-      #send_warning      False
-      #send_critical     False
-      #send_min          False
-      #send_max          False
+      # You may specify which one are to be displayed or not
+      # Default is to display all the information
+      #use_warning             True
+      #use_critical            True
+      #use_min                 True
+      #use_max                 True
+
+      # Define colors to use for extra metrics
+      # Default is black
+      color_warning           orange
+      color_critical          red
+      color_min               black
+      color_max               blue
+
+      # Define some graphs parameters
+      # Line mode
+      # Possible values are : slope, staircase, connected
+      # Default is connected
+      #lineMode                connected
+
+      # Graph time zone
+      # Default is Europe/Paris
+      #tz                      Europe/Paris
    }
 ```
