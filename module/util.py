@@ -34,10 +34,28 @@ class GraphFactory(object):
         self.logger.debug(self.element_type)
         if self.element_type == 'host':
             if "_GRAPHITE_PRE" in self.element.customs:
-                return self.element.customs["_GRAPHITE_PRE"]
+                if "_GRAPHITE_GROUP" in self.element.customs:
+                    return GraphiteMetric.join(
+                        self.element.customs["_GRAPHITE_PRE"],
+                        self.element.customs["_GRAPHITE_GROUP"]
+                    )
+                else:
+                    return self.element.customs["_GRAPHITE_PRE"]
+            else:
+                if "_GRAPHITE_GROUP" in self.element.customs:
+                    return self.element.customs["_GRAPHITE_GROUP"]
         elif self.element_type == 'service':
             if "_GRAPHITE_PRE" in self.element.host.customs:
-                return self.element.host.customs["_GRAPHITE_PRE"]
+                if "_GRAPHITE_GROUP" in self.element.host.customs:
+                    return GraphiteMetric.join(
+                        self.element.host.customs["_GRAPHITE_PRE"],
+                        self.element.host.customs["_GRAPHITE_GROUP"]
+                    )
+                else:
+                    return self.element.host.customs["_GRAPHITE_PRE"]
+            else:
+                if "_GRAPHITE_GROUP" in self.element.host.customs:
+                    return self.element.host.customs["_GRAPHITE_GROUP"]
         return ''
 
     # property to retrieve the graphite postfix for a host
