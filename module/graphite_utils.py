@@ -144,7 +144,7 @@ class GraphiteURL(object):
         self._start = ''
         self._end = ''
         if server.endswith('/'):
-            server=server[:-1]
+            server = server[:-1]
         self.server = server
         self.start = start
         self.end = end
@@ -214,7 +214,10 @@ class GraphiteURL(object):
         server = '{0.scheme}://{0.hostname}'.format(parts)
         if parts.port:
             server += ':%d' % parts.port
-        server += '/'
+        path = parts.path.split('/')
+        # strip out the final component (should be render or composer) since the args list is
+        # separated from the path by a '/?' this is actually the last two elements that need to be dropped
+        server += '/'.join(path[:-2])
 
         obj = cls(style=style, server=server)
         # style
