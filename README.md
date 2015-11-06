@@ -7,6 +7,7 @@ Shinken module for viewing Graphite graphs in the Web UI, version 2
 This version is a refactoring of the previous ui-graphite module which allows:
 
    - improve configuration features:
+      - configure host check metric name
       - define graph and font size for dashboard anf element page graphs
       - allow to define if warning, critical, min and max thresholds are present on graphs
       - allow to define warning, critical, min and max lines colors

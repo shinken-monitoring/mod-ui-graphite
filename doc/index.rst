@@ -9,6 +9,7 @@ Shinken module for viewing Graphite graphs in the Web UI, version 2
 This version is a refactoring of the previous ui-graphite module which allows:
 
    - improve configuration features:
+      - configure host check metric name
       - define graph and font size for dashboard anf element page graphs
       - allow to define if warning, critical, min and max thresholds are present on graphs
       - allow to define warning, critical, min and max lines colors
@@ -50,15 +51,13 @@ Default configuration file is as is :
 ```
    ## Module:      ui-graphite2
    ## Loaded by:   WebUI
-   # Use Graphite graphs in the WebUI, based on default or graphite URL API
-   # templates.
+   # Use Graphite graphs in the WebUI, based on default or graphite URL API templates.
    #
    # IMPORTANT : Set the proper TIME_ZONE parameter in graphite : webapp/graphite/local_settings.py
-   # Set if to match the system setting.
-   # If not, 4h graphs will be broken.
+   # Set if to match the system setting. If not, 4h graphs will be broken.
    define module {
-      module_name             ui-graphite
-      module_type             graphite-webui2
+      module_name             ui-graphite2
+      module_type             graphite-webui
 
       uri                     http://YOURSERVERNAME/
                               ; Set your Graphite URI. Note : YOURSERVERNAME will be
