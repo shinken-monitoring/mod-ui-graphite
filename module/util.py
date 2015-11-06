@@ -180,11 +180,12 @@ class GraphFactory(object):
         for metric in couples:
             self.logger.debug("[Graphite UI] metric: %s", metric)
             title = '%s/%s - %s' % (self.hostname, self.servicename, metric['name'])
-            graph = GraphiteURL(server=self.cfg.uri, title=title, style=self.style, start=self.graph_start,
-                                end=self.graph_end, tz=self.cfg.tz)
+            graph = GraphiteURL(server=self.cfg.uri, title=title, style=self.style,
+                                start=self.graph_start, end=self.graph_end, tz=self.cfg.tz)
 
             # Graph main series
-            graphite_metric = GraphiteMetric(self.prefix, self.hostname, self.cfg.graphite_data_source,
+            graphite_metric = GraphiteMetric(self.prefix, self.hostname,
+                                             self.cfg.graphite_data_source,
                                              self.servicename, metric['name'], self.postfix)
             graph.add_target(graphite_metric, alias=metric['name'], color='green')
 
