@@ -61,7 +61,7 @@ class Graphite_Webui(BaseModule):
         self.app = None
 
         # service name to use for host check
-        self.hostcheck = getattr(modconf, 'hostcheck', '__HOST__')
+        self.hostcheck = getattr(modconf, 'hostcheck', '')
 
         # load styles
         self.styles = dict(default=GraphStyle())
