@@ -18,6 +18,17 @@ This version is a refactoring of the previous ui-graphite module which allows:
 
 This module is fully compatible with the graphite2 broker module and with the WebUI2.
 
+
+Hosts specific configuration
+--------------------------------
+The `_GRAPHITE_PRE` and `_GRAPHITE_GROUP` defined in the hosts configuration are used to prefix the requested metrics.
+
+
+Services specific configuration
+--------------------------------
+The `_GRAPHITE_POST` defined in the services configuration are used to postfix the requested metrics.
+
+
 Requirements
 -------------------------
 

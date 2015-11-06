@@ -37,3 +37,12 @@ Run
    su -
    /etc/init.d/shinken restart
 
+
+Hosts specific configuration
+--------------------------------
+The `_GRAPHITE_PRE` and `_GRAPHITE_GROUP` defined in the hosts configuration are used to prefix the requested metrics.
+
+
+Services specific configuration
+--------------------------------
+The `_GRAPHITE_POST` defined in the services configuration are used to postfix the requested metrics.
