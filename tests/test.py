@@ -59,48 +59,48 @@ class TestGraphiteURL(unittest.TestCase):
     def test_base(self):
         u = GraphiteURL()
         self.assertEqual(u.target_string, '')
-        self.assertEqual(u._end, '17:00_19691231')
-        self.assertEqual(u._start, '17:00_19691231')
+        self.assertEqual(u._end, '00:00_19700101')
+        self.assertEqual(u._start, '00:00_19700101')
         self.assertEqual(u.url('render'),
-                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+                         '/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101')
         self.assertEqual(u.url('composer'),
-                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+                         '/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101')
         with self.assertRaises(ValueError):
             u.url('test')
 
     def test_server(self):
         u = GraphiteURL('http://example.com/')
         self.assertEqual(u.target_string, '')
-        self.assertEqual(u._end, '17:00_19691231')
-        self.assertEqual(u._start, '17:00_19691231')
+        self.assertEqual(u._end, '00:00_19700101')
+        self.assertEqual(u._start, '00:00_19700101')
         self.assertEqual(u.url('render'),
-                         'http://example.com/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+                         'http://example.com/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101')
         self.assertEqual(u.url('composer'),
-                         'http://example.com/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231')
+                         'http://example.com/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101')
         with self.assertRaises(ValueError):
             u.url('test')
 
     def test_min_max(self):
         u = GraphiteURL(min=0, max=100)
         self.assertEqual(u.target_string, '')
-        self.assertEqual(u._end, '17:00_19691231')
-        self.assertEqual(u._start, '17:00_19691231')
+        self.assertEqual(u._end, '00:00_19700101')
+        self.assertEqual(u._start, '00:00_19700101')
         self.assertEqual(u.url('render'),
-                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
+                         '/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&yMin=0&yMax=100')
         self.assertEqual(u.url('composer'),
-                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&yMin=0&yMax=100')
+                         '/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&yMin=0&yMax=100')
         with self.assertRaises(ValueError):
             u.url('test')
 
     def test_title(self):
         u = GraphiteURL(title="test")
         self.assertEqual(u.target_string, '')
-        self.assertEqual(u._end, '17:00_19691231')
-        self.assertEqual(u._start, '17:00_19691231')
+        self.assertEqual(u._end, '00:00_19700101')
+        self.assertEqual(u._start, '00:00_19700101')
         self.assertEqual(u.url('render'),
-                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
+                         '/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&title=test')
         self.assertEqual(u.url('composer'),
-                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test')
+                         '/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&title=test')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -110,12 +110,12 @@ class TestGraphiteURL(unittest.TestCase):
         for t in u.targets:
             self.assertIsInstance(t, GraphiteTarget)
         self.assertEqual(u.target_string, 'target=test')
-        self.assertEqual(u._end, '17:00_19691231')
-        self.assertEqual(u._start, '17:00_19691231')
+        self.assertEqual(u._end, '00:00_19700101')
+        self.assertEqual(u._start, '00:00_19700101')
         self.assertEqual(u.url('render'),
-                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
+                         '/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&title=test&target=test')
         self.assertEqual(u.url('composer'),
-                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test')
+                         '/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&title=test&target=test')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -125,12 +125,12 @@ class TestGraphiteURL(unittest.TestCase):
         for t in u.targets:
             self.assertIsInstance(t, GraphiteTarget)
         self.assertEqual(u.target_string, 'target=test&target=test2')
-        self.assertEqual(u._end, '17:00_19691231')
-        self.assertEqual(u._start, '17:00_19691231')
+        self.assertEqual(u._end, '00:00_19700101')
+        self.assertEqual(u._start, '00:00_19700101')
         self.assertEqual(u.url('render'),
-                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
+                         '/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&title=test&target=test&target=test2')
         self.assertEqual(u.url('composer'),
-                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=test2')
+                         '/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&title=test&target=test&target=test2')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -142,12 +142,12 @@ class TestGraphiteURL(unittest.TestCase):
         for t in u.targets:
             self.assertIsInstance(t, GraphiteTarget)
         self.assertEqual(u.target_string, 'target=test&target=alias(test2,"Fred")')
-        self.assertEqual(u._end, '17:00_19691231')
-        self.assertEqual(u._start, '17:00_19691231')
+        self.assertEqual(u._end, '00:00_19700101')
+        self.assertEqual(u._start, '00:00_19700101')
         self.assertEqual(u.url('render'),
-                         '/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
+                         '/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&title=test&target=test&target=alias(test2,"Fred")')
         self.assertEqual(u.url('composer'),
-                         '/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=17:00_19691231&title=test&target=test&target=alias(test2,"Fred")')
+                         '/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=00:00_19700101&title=test&target=test&target=alias(test2,"Fred")')
         with self.assertRaises(ValueError):
             u.url('test')
 
@@ -175,7 +175,7 @@ class TestGraphiteMetric(unittest.TestCase):
 
 class TestGraphiteTime(unittest.TestCase):
     def test_unixtime_0(self):
-        self.assertEqual(graphite_time(0), '17:00_19691231')
+        self.assertEqual(graphite_time(0), '00:00_19700101')
 
     def test_unixtime_now(self):
         self.assertEqual(graphite_time(time.time()), datetime.now().strftime('%H:%M_%Y%m%d'))
@@ -450,12 +450,12 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 2)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=4&from=17:00_19691231&until=07:53_19700102&title=Response Time on testhost&yMin=0&target=legendValue(alias(testhost.__HOST__.rta,"Response Time"),"last")',
-            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=4&from=17:00_19691231&until=07:53_19700102&title=Response Time on testhost&yMin=0&target=legendValue(alias(testhost.__HOST__.rta,"Response Time"),"last")'
+            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=4&from=00:00_19700101&until=14:53_19700102&title=Response Time on testhost&yMin=0&target=legendValue(alias(testhost.__HOST__.rta,"Response Time"),"last")',
+            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=4&from=00:00_19700101&until=14:53_19700102&title=Response Time on testhost&yMin=0&target=legendValue(alias(testhost.__HOST__.rta,"Response Time"),"last")'
         })
         self.assertEqual(uris[1], {
-            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=4&from=17:00_19691231&until=07:53_19700102&title=Packet Loss Percentage on testhost&yMin=0&yMax=100&target=legendValue(alias(testhost.__HOST__.pl,"Packet loss percentage"),"last")',
-            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=4&from=17:00_19691231&until=07:53_19700102&title=Packet Loss Percentage on testhost&yMin=0&yMax=100&target=legendValue(alias(testhost.__HOST__.pl,"Packet loss percentage"),"last")'
+            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=4&from=00:00_19700101&until=14:53_19700102&title=Packet Loss Percentage on testhost&yMin=0&yMax=100&target=legendValue(alias(testhost.__HOST__.pl,"Packet loss percentage"),"last")',
+            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=4&from=00:00_19700101&until=14:53_19700102&title=Packet Loss Percentage on testhost&yMin=0&yMax=100&target=legendValue(alias(testhost.__HOST__.pl,"Packet loss percentage"),"last")'
         })
 
     def test_service_url_template(self):
@@ -491,8 +491,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
-            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
+            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
         })
 
     def test_service_generate_graphite_path_mods(self):
@@ -514,8 +514,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
-            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=8&from=17:00_19691231&until=07:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
+            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
         })
 
 
