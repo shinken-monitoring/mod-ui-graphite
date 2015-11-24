@@ -301,7 +301,11 @@ class GraphiteRewriteRule(object):
 
 
 class GraphiteMetric(object):
+    # Specific filter for metrics name
     illegal_char = re.compile(r'[^a-zA-Z0-9_.\-]')
+    # Specific filter for host and services names
+    illegal_char_hostname = re.compile(r'[^a-zA-Z0-9_\-]')
+
     rewrite_rules = []
 
     def __init__(self, *parts):
@@ -323,6 +327,10 @@ class GraphiteMetric(object):
     @classmethod
     def normalize(cls, metric_name):
         return cls.illegal_char.sub("_", metric_name)
+
+    @classmethod
+    def normalize_name(cls, metric_name):
+        return cls.illegal_char_hostname.sub("_", metric_name)
 
     @classmethod
     def add_rule(cls, rule, sub):
