@@ -1,10 +1,10 @@
 {
   "name": "ui-graphite2",
   "types": ["module"],
-  "version": "2.1.1",
+  "version": "2.1.2",
   "homepage": "http://github.com/shinken-monitoring/mod-ui-graphite/tree/refactored",
   "author": "Jean Gabès",
-  "description": "Enable Graphite graphs inside the WebUI - version 2",
+  "description": "Enable Graphite graphs inside the WebUI - version 2.1.2",
   "contributors": [
     {
       "name": "Jean Gabès",
