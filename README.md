@@ -18,25 +18,27 @@ This module is fully compatible with the graphite2 broker module and with the We
 
 Installation
 --------------------------------
-
+```
    su - shinken
 
    shinken install ui-graphite2
+```
 
 Configuration
 --------------------------------
 
-
+```
    vi /etc/shinken/modules/webui2.cfg
 
    => modules ui-graphite2
+```
 
 Run
 --------------------------------
-
+```
    su -
    /etc/init.d/shinken restart
-
+```
 
 Hosts specific configuration
 --------------------------------
