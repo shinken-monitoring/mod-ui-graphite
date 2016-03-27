@@ -16,6 +16,7 @@ sys.path.append(ROOT_PATH)
 from module.util import JSONTemplate, GraphFactory, TemplateNotFound
 from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, GraphiteMetric, graphite_time, \
     GraphiteRewriteRule, GraphiteFunction, GraphiteString
+from module.module import Graphite_Webui
 from fake_shinken import Host, CheckCommand, Service, ShinkenModuleConfig
 
 os.environ["TZ"] = "UTC"
@@ -437,6 +438,65 @@ class TestGraphFactory(unittest.TestCase):
             'dashboard': GraphStyle(font_size=4)
         }
         self.config.set_value('styles', self.styles)
+
+    def test_zero_attributes(self):
+        def get_name():
+            return 'ui-graphite2'
+
+        def get_metric(metrics, name):
+            for m in metrics:
+                if m['name'] == name:
+                    return m
+            return None
+
+        self.config.set_value('get_name', get_name)
+        self.config.set_value('properties', {})
+        wui = Graphite_Webui(self.config)
+        metrics = wui.get_metric_and_value(self.service_cpu, "m0=0ms;1.1;2.2;3.3;4.4 " +
+                                                             "m1=0ms;0;2.2;3.3;4.4 " +
+                                                             "m2=0ms;1.1;0;3.3;4.4 " +
+                                                             "m3=0ms;1.1;2.2;0;4.4 " +
+                                                             "m4=0ms;1.1;2.2;3.3;0")
+        self.assertEqual(5,len(metrics))
+        metric = get_metric(metrics, "m0")
+        self.assertEqual("m0", metric.get('name'))
+        self.assertEqual("ms", metric.get('uom'))
+        self.assertEqual(1.1, metric.get('warning'))
+        self.assertEqual(2.2, metric.get('critical'))
+        self.assertEqual(3.3, metric.get('min'))
+        self.assertEqual(4.4, metric.get('max'))
+
+        metric = get_metric(metrics, "m1")
+        self.assertEqual("m1", metric.get('name'))
+        self.assertEqual("ms", metric.get('uom'))
+        self.assertEqual(0, metric.get('warning'))
+        self.assertEqual(2.2, metric.get('critical'))
+        self.assertEqual(3.3, metric.get('min'))
+        self.assertEqual(4.4, metric.get('max'))
+
+        metric = get_metric(metrics, "m2")
+        self.assertEqual("m2", metric.get('name'))
+        self.assertEqual("ms", metric.get('uom'))
+        self.assertEqual(1.1, metric.get('warning'))
+        self.assertEqual(0, metric.get('critical'))
+        self.assertEqual(3.3, metric.get('min'))
+        self.assertEqual(4.4, metric.get('max'))
+
+        metric = get_metric(metrics, "m3")
+        self.assertEqual("m3", metric.get('name'))
+        self.assertEqual("ms", metric.get('uom'))
+        self.assertEqual(1.1, metric.get('warning'))
+        self.assertEqual(2.2, metric.get('critical'))
+        self.assertEqual(0, metric.get('min'))
+        self.assertEqual(4.4, metric.get('max'))
+
+        metric = get_metric(metrics, "m4")
+        self.assertEqual("m4", metric.get('name'))
+        self.assertEqual("ms", metric.get('uom'))
+        self.assertEqual(1.1, metric.get('warning'))
+        self.assertEqual(2.2, metric.get('critical'))
+        self.assertEqual(3.3, metric.get('min'))
+        self.assertEqual(0, metric.get('max'))
 
     def test_host_json_template(self):
         fact = GraphFactory(self.host, 0, 140000, source='dashboard', log=logging, cfg=self.config)
