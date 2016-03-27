@@ -197,7 +197,7 @@ class GraphFactory(object):
             for t in ('warning', 'critical', 'min', 'max'):
                 if t in metric:
                     n = 'color_%s' % t
-                    graph.add_target('constantLine(%d)' % metric[t], alias=t.title(), color=getattr(self.cfg, n))
+                    graph.add_target('constantLine(%s)' % metric[t], alias=t.title(), color=getattr(self.cfg, n))
 
             v = dict(
                 link=graph.url('composer'),

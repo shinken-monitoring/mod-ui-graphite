@@ -430,7 +430,7 @@ class TestGraphFactory(unittest.TestCase):
         self.config.set_value('lineMode', None)
         self.config.set_value('graphite_data_source', '')
         self.config.set_value('get_metric_and_value', lambda x, y: [
-            {'name': 'testMetric', 'uom': 'msec', 'min': 0, 'critical': 500, 'warning': 600}])
+            {'name': 'testMetric', 'uom': 'msec', 'min': 0, 'max': 3.7, 'critical': 500, 'warning': 600}])
         self.styles = {
             'default': GraphStyle(),
             'detail': GraphStyle(),
@@ -492,8 +492,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
-            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")&target=alias(constantLine(3.7),"Max")',
+            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(testhost.testservice.testMetric,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")&target=alias(constantLine(3.7),"Max")'
         })
 
     def test_service_generate_graphite_path_mods(self):
@@ -515,8 +515,8 @@ class TestGraphFactory(unittest.TestCase):
         uris = fact.get_graph_uris()
         self.assertEqual(len(uris), 1)
         self.assertEqual(uris[0], {
-            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")',
-            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")'
+            'link': 'http://example.com/graphite/composer/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")&target=alias(constantLine(3.7),"Max")',
+            'img_src': 'http://example.com/graphite/render/?width=586&height=308&fontSize=8&from=00:00_19700101&until=14:53_19700102&title=testhost/testservice - testMetric&target=alias(color(frank.testhost.shinken.testservice.testMetric.FRED,"green"),"testMetric")&target=alias(constantLine(600),"Warning")&target=alias(constantLine(500),"Critical")&target=alias(constantLine(0),"Min")&target=alias(constantLine(3.7),"Max")'
         })
 
 
