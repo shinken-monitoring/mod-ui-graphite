@@ -18,6 +18,7 @@ from module.graphite_utils import GraphStyle, GraphiteTarget, GraphiteURL, Graph
     GraphiteRewriteRule, GraphiteFunction, GraphiteString
 from fake_shinken import Host, CheckCommand, Service, ShinkenModuleConfig
 
+os.environ["TZ"] = "UTC"
 
 class TestGraphiteTarget(unittest.TestCase):
     def test_empty(self):
