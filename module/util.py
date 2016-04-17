@@ -187,7 +187,6 @@ class GraphFactory(object):
             graphite_metric = GraphiteMetric(self.prefix, self.hostname,
                                              self.cfg.graphite_data_source,
                                              self.servicename, metric['name'], self.postfix)
-            graph.add_target(graphite_metric, alias=metric['name'], color='green')
 
             #TODO - Shinken appears to store these in graphite, rather than using the current value as a constant line,
             #TODO - use the approppriate time series from graphite
@@ -197,7 +196,9 @@ class GraphFactory(object):
             for t in ('warning', 'critical', 'min', 'max'):
                 if t in metric:
                     n = 'color_%s' % t
-                    graph.add_target('constantLine(%d)' % metric[t], alias=t.title(), color=getattr(self.cfg, n))
+                    graph.add_target('constantLine(%s)' % metric[t], alias=t.title(), color=getattr(self.cfg, n))
+
+            graph.add_target(graphite_metric, alias=metric['name'], color='green')
 
             v = dict(
                 link=graph.url('composer'),

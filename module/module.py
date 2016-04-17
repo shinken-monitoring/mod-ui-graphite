@@ -163,7 +163,7 @@ class Graphite_Webui(BaseModule):
 
             # Get or ignore extra values depending upon module configuration
             for s in ('warning', 'critical', 'min', 'max'):
-                if getattr(e, s) and getattr(self, 'use_%s' % s):
+                if getattr(e, s) is not None  and getattr(self, 'use_%s' % s):
                     metric[s] = getattr(e, s)
 
             result.append(metric)
